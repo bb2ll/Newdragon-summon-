@@ -15,6 +15,7 @@ const mime = {
   ".css": "text/css; charset=utf-8",
   ".png": "image/png",
   ".mp4": "video/mp4",
+  ".mp3": "audio/mpeg",
   ".json": "application/json; charset=utf-8",
   ".md": "text/markdown; charset=utf-8"
 };
@@ -174,7 +175,7 @@ function json(res, code, body) {
 function staticCacheHeaders(filePath, stat) {
   const ext = path.extname(filePath).toLowerCase();
   const etag = `W/"${stat.size}-${Number(stat.mtimeMs).toString(16)}"`;
-  const immutableTypes = new Set([".png", ".mp4"]);
+  const immutableTypes = new Set([".png", ".mp4", ".mp3"]);
   const revalidateTypes = new Set([".js", ".css"]);
   const cacheControl = immutableTypes.has(ext)
     ? "public, max-age=2592000, immutable"

@@ -19,6 +19,7 @@ let activeBattle = null;
 let battleSettlementOpen = false;
 let upgradeSequenceActive = false;
 let upgradeResultOpen = false;
+let musicUnlocked = false;
 applyDebugRoute();
 
 function loadAuth() {
@@ -89,7 +90,7 @@ function seedState() {
     dungeonRuns: { easy: 0, medium: 0, hard: 0 },
     densityNextRefreshAt: Date.now() + (45 + rand(0, 30)) * 60000,
     unlocked: { easy: 1, medium: 0, hard: 0 },
-    settings: { sound: true, music: false, notifications: true, autosave: true },
+    settings: { sound: true, music: true, musicConfigured: true, notifications: true, autosave: true },
     lastTick: Date.now(),
     mercenaries: []
   };
@@ -179,6 +180,11 @@ function normalizeState() {
   state.worldBossQueue ||= [];
   state.sparring ||= { defenders: [], history: [], nextCycleAt: Date.now() + 86400000 };
   state.mailbox ||= [];
+  state.settings ||= { sound: true, music: true, notifications: true, autosave: true };
+  if (!state.settings.musicConfigured) {
+    state.settings.music = true;
+    state.settings.musicConfigured = true;
+  }
   state.online ||= false;
   state.workFilters ||= { class: "all", attribute: "all", minimum: 0, sort: "recommended" };
   state.battleHistory ||= [];
@@ -192,6 +198,31 @@ function normalizeState() {
 
 function uid(prefix) {
   return `${prefix}_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function syncMusicScene() {
+  const background = document.querySelector("#backgroundMusic");
+  const battle = document.querySelector("#battleMusic");
+  if (!background || !battle) return;
+  background.volume = 0.28;
+  battle.volume = 0.36;
+  const enabled = Boolean(isLoggedIn() && state?.settings?.music !== false && musicUnlocked);
+  const play = (audio) => audio.paused && audio.play().catch(() => {});
+  if (!enabled) {
+    background.pause();
+    battle.pause();
+  } else if (activeBattle) {
+    background.pause();
+    play(battle);
+  } else {
+    battle.pause();
+    play(background);
+  }
+}
+
+function unlockMusic() {
+  musicUnlocked = true;
+  syncMusicScene();
 }
 
 function clamp(n, min, max) {
@@ -664,6 +695,7 @@ function render() {
   renderTrade();
   renderSettings();
   document.querySelectorAll(".view").forEach((view) => view.classList.toggle("active", view.id === `view-${state.currentView}`));
+  syncMusicScene();
   saveState();
 }
 
@@ -1372,6 +1404,7 @@ function battleStrike(attacker, defender) {
 
 function renderBattleModal() {
   if (!activeBattle) return;
+  syncMusicScene();
   const battle = activeBattle;
   const heroPercent = Math.max(0, Math.round((battle.hero.hp / battle.hero.maxHp) * 100));
   const enemyPercent = Math.max(0, Math.round((battle.enemy.hp / battle.enemy.maxHp) * 100));
@@ -1929,6 +1962,7 @@ function closeModal() {
 }
 
 document.addEventListener("click", (event) => {
+  unlockMusic();
   const authTab = event.target.closest("[data-auth-tab]");
   if (authTab) {
     authMode = authTab.dataset.authTab;
