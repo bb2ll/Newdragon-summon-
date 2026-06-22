@@ -1019,10 +1019,31 @@ body.auth-locked .auth-gate {
 @media (max-width: 980px) {
   .auth-shell {
     grid-template-columns: 1fr;
+    gap: 12px;
   }
 
   .auth-hero {
-    min-height: 420px;
+    min-height: 230px;
+    padding: 22px;
+  }
+
+  .auth-panel {
+    order: -1;
+    padding: 22px;
+  }
+
+  .auth-tabs {
+    width: 100%;
+    margin-bottom: 14px;
+  }
+
+  .auth-tab {
+    min-height: 50px;
+    font-size: 17px;
+  }
+
+  .auth-form {
+    margin-top: 18px;
   }
 
   .topbar {
