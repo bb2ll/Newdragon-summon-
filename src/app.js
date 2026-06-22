@@ -639,12 +639,6 @@ function renderAuthGate() {
           <h2>登录你的佣兵团账号</h2>
           <p>注册后会立刻得到一张 9 级随机英雄卡。之后你的进度会跟着账号走，不再只留在当前浏览器。</p>
         </div>
-        <div class="auth-feature-grid">
-          <div class="auth-feature"><strong>新号赠礼</strong><span>自动发放 9 级随机职业卡，开局就能直接上阵。</span></div>
-          <div class="auth-feature"><strong>账号分存档</strong><span>不同账号互不影响，联机测试时也更清楚。</span></div>
-          <div class="auth-feature"><strong>迷宫继续打</strong><span>登录后原有玩法不变，直接进入酒馆继续经营。</span></div>
-          <div class="auth-feature"><strong>适合联机测试</strong><span>部署到 Docker 后，可以用不同账号分别验证上传、挑战和交易。</span></div>
-        </div>
       </section>
       <section class="auth-panel">
         <div class="auth-tabs">
@@ -657,7 +651,7 @@ function renderAuthGate() {
         <form class="auth-form" data-auth-form="${authMode}">
           <label class="auth-field"><span>用户名</span><input name="username" autocomplete="username" required></label>
           <label class="auth-field"><span>密码</span><input name="password" type="password" autocomplete="current-password" required></label>
-          <button class="game-button success auth-submit" type="submit" ${authBusy ? "disabled" : ""}>${authBusy ? "处理中..." : authMode === "login" ? "进入游戏" : "注册并进入"}</button>
+          <button class="game-button success auth-submit" type="submit" ${authBusy ? "disabled" : ""}>${authBusy ? "处理中..." : authMode === "login" ? "进入游戏" : "注册账号"}</button>
         </form>
         <div class="auth-message ${authMessageType}">${authMessage || ""}</div>
       </section>
@@ -1910,6 +1904,15 @@ async function runAuthAction(mode, form) {
     authMessage = result?.error || (mode === "login" ? "?????" : "?????");
     authMessageType = "error";
     renderAuthGate();
+    return;
+  }
+  if (mode === "register") {
+    setAuth(null);
+    hydrateIncomingState(seedState());
+    authMode = "login";
+    authMessage = "注册成功，请使用刚刚创建的账号登录。";
+    authMessageType = "success";
+    render();
     return;
   }
   setAuth(result);

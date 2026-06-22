@@ -29,7 +29,7 @@ body {
 }
 
 body.auth-locked {
-  overflow: hidden;
+  overflow: auto;
 }
 
 button,
@@ -1055,8 +1055,14 @@ body.auth-locked .auth-gate {
 }
 
 @media (max-width: 560px) {
+  body.auth-locked .auth-gate {
+    align-items: start;
+    padding: 10px;
+  }
+
   .auth-shell {
-    padding: 14px;
+    gap: 10px;
+    padding: 10px;
   }
 
   .auth-hero,
@@ -1064,8 +1070,45 @@ body.auth-locked .auth-gate {
     padding: 18px;
   }
 
-  .auth-feature-grid {
-    grid-template-columns: 1fr;
+  .auth-panel {
+    order: -1;
+  }
+
+  .auth-tabs {
+    width: 100%;
+    margin-bottom: 14px;
+  }
+
+  .auth-tab {
+    min-height: 50px;
+    font-size: 17px;
+  }
+
+  .auth-panel h3 {
+    font-size: 28px;
+  }
+
+  .auth-form {
+    gap: 12px;
+    margin-top: 18px;
+  }
+
+  .auth-submit {
+    min-height: 52px;
+    font-size: 17px;
+  }
+
+  .auth-hero {
+    min-height: 220px;
+  }
+
+  .auth-hero h2 {
+    font-size: 32px;
+  }
+
+  .auth-hero p {
+    font-size: 14px;
+    line-height: 1.55;
   }
 
   .app-shell {
