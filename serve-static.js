@@ -100,19 +100,39 @@ function saveServerState(state) {
 
 let serverState = loadServerState();
 
-function send(res, code, body, type = "text/plain; charset=utf-8") {
+function send(res, code, body, type = "text/plain; charset=utf-8", extraHeaders = {}) {
   res.writeHead(code, {
     "Content-Type": type,
     "Cache-Control": "no-store",
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Headers": "Content-Type,X-Auth-Token",
-    "Access-Control-Allow-Methods": "GET,POST,OPTIONS"
+    "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
+    ...extraHeaders
   });
   res.end(body);
 }
 
 function json(res, code, body) {
   send(res, code, JSON.stringify(body), "application/json; charset=utf-8");
+}
+
+function staticCacheHeaders(filePath, stat) {
+  const ext = path.extname(filePath).toLowerCase();
+  const etag = `W/"${stat.size}-${Number(stat.mtimeMs).toString(16)}"`;
+  const immutableTypes = new Set([".png", ".mp4"]);
+  const revalidateTypes = new Set([".js", ".css"]);
+  const cacheControl = immutableTypes.has(ext)
+    ? "public, max-age=2592000, immutable"
+    : revalidateTypes.has(ext)
+      ? "public, max-age=86400, must-revalidate"
+      : ext === ".html"
+        ? "no-store"
+        : "public, max-age=3600, must-revalidate";
+  return {
+    "Cache-Control": cacheControl,
+    ETag: etag,
+    "Last-Modified": stat.mtime.toUTCString()
+  };
 }
 
 function readBody(req) {
@@ -437,9 +457,16 @@ function serveFile(req, res, pathname) {
   const safePath = pathname === "/" ? "/index.html" : pathname;
   const filePath = path.normalize(path.join(root, safePath));
   if (!filePath.startsWith(root)) return send(res, 403, "Forbidden");
-  fs.readFile(filePath, (err, data) => {
-    if (err) return send(res, 404, "Not found");
-    send(res, 200, data, mime[path.extname(filePath).toLowerCase()] || "application/octet-stream");
+  fs.stat(filePath, (statErr, stat) => {
+    if (statErr || !stat.isFile()) return send(res, 404, "Not found");
+    const headers = staticCacheHeaders(filePath, stat);
+    if (req.headers["if-none-match"] === headers.ETag) {
+      return send(res, 304, "", mime[path.extname(filePath).toLowerCase()] || "application/octet-stream", headers);
+    }
+    fs.readFile(filePath, (err, data) => {
+      if (err) return send(res, 404, "Not found");
+      send(res, 200, data, mime[path.extname(filePath).toLowerCase()] || "application/octet-stream", headers);
+    });
   });
 }
 

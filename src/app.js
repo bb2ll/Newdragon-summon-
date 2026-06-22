@@ -1109,13 +1109,20 @@ function openSummonGate() {
   if (state.primary < 1) return addToast("主币不足，无法开启召唤门。");
   summonGatePending = true;
   openModal(`<div class="summon-cinematic">
-    <video id="summonGateVideo" autoplay playsinline preload="auto">
+    <video id="summonGateVideo" autoplay playsinline muted preload="auto">
       <source src="./assets/media/summon_animation_01.mp4" type="video/mp4">
     </video>
     <div class="summon-cinematic-bar"><span>召唤门正在开启……</span>${button("跳过动画", "summon-finish")}</div>
   </div>`);
   const video = document.querySelector("#summonGateVideo");
+  const finishTimer = setTimeout(finishSummonGate, 3500);
+  const tuneVideoLength = () => {
+    if (!video?.duration || !Number.isFinite(video.duration)) return;
+    video.playbackRate = Math.max(1, video.duration / 3.5);
+  };
+  video?.addEventListener("loadedmetadata", tuneVideoLength, { once: true });
   video?.addEventListener("ended", finishSummonGate, { once: true });
+  video?.addEventListener("ended", () => clearTimeout(finishTimer), { once: true });
   video?.play().catch(() => addToast("动画未能自动播放，可点击跳过继续召唤。"));
 }
 
