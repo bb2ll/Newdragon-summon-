@@ -153,6 +153,9 @@ body.auth-locked .auth-gate {
   text-align: right;
 }
 
+.mail-button { position: relative; min-height: 42px; display: inline-flex; align-items: center; gap: 7px; padding: 7px 12px; color: #f4dfaa; background: rgba(54, 38, 21, .72); border: 1px solid rgba(226, 180, 90, .52); cursor: pointer; }
+.mail-button b { min-width: 19px; height: 19px; display: grid; place-items: center; padding: 0 5px; color: #1b110a; background: #f0bd5c; border-radius: 50%; font-size: 11px; }
+
 .auth-shell {
   width: min(1120px, 100%);
   display: grid;
@@ -771,6 +774,27 @@ body.auth-locked .auth-gate {
   border: 1px solid rgba(226, 180, 90, 0.34);
 }
 
+.merc-card-showcase { grid-template-columns: minmax(168px, .7fr) minmax(270px, 1fr); min-height: 330px; padding: 12px; overflow: hidden; background: radial-gradient(circle at 80% 18%, rgba(92,70,128,.18), transparent 42%), rgba(10,10,10,.94); border-color: rgba(209,159,73,.65); box-shadow: inset 0 0 0 1px rgba(251,220,145,.08); }
+.merc-art-frame { min-height: 300px; display: grid; place-items: end center; overflow: hidden; background: radial-gradient(ellipse at 50% 28%, rgba(228,195,120,.15), transparent 58%), rgba(0,0,0,.26); border: 1px solid rgba(209,159,73,.36); }
+.merc-card-showcase .hero-portrait { width: 100%; height: 100%; min-height: 292px; object-fit: contain; background: transparent; border: 0; }
+.merc-showcase-info { min-width: 0; display: flex; flex-direction: column; }
+.merc-showcase-heading { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.class-title { margin: 0; color: #f4ddad; font-family: STFangsong, SimSun, serif; font-weight: 900; letter-spacing: .1em; text-shadow: 0 2px 8px #000, 0 0 18px rgba(214,166,74,.28); }
+.class-title.warrior { color: #f2d6ab; }.class-title.rogue { color: #c9e0d0; }.class-title.mage { color: #f1dfb8; }
+.merc-showcase-heading .class-title { font-size: clamp(32px,3vw,53px); line-height: 1; }
+.level-plate { flex: 0 0 auto; padding: 7px 17px; color: #f2e6d2; background: linear-gradient(135deg,#2b213c,#503963); border: 1px solid #b99a52; box-shadow: inset 0 0 0 2px rgba(0,0,0,.36); font-family: Georgia,serif; font-size: 20px; }
+.merc-showcase-badges,.merc-showcase-metrics { display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }.quality-badge,.status-badge,.merc-showcase-metrics span { padding:8px 11px; border:1px solid rgba(224,177,88,.48); background:rgba(66,45,24,.6); }.quality-badge { color:var(--quality); border-color:var(--quality); }.status-badge { color:#d7b568; }.merc-showcase-metrics span { color:#cdbb95; }.merc-showcase-metrics b { color:#fff0ca; font-size:17px; }
+.merc-showcase-stats { margin: 13px 0; }.merc-showcase-stats .stat-line { padding: 7px 9px; background: rgba(0,0,0,.34); }.merc-showcase-stats strong { color:#fff0ca; font-size:17px; }
+
+.modal.modal-hero-detail { width:min(1260px,calc(100vw - 32px)); padding: 0; overflow:hidden; background: radial-gradient(circle at 74% 35%,rgba(117,99,60,.23),#0b0a0a 55%); }
+.hero-detail-view { padding: 22px; }.hero-detail-title { display:flex; align-items:center; gap:16px; margin-bottom:20px; }.hero-detail-title .class-title { font-size:44px; }.detail-class-mark { color:#e5c16d; font-size:38px; }.detail-close { margin-left:auto; min-width:130px; }
+.hero-detail-layout { display:grid; grid-template-columns:minmax(420px,.88fr) minmax(450px,1.12fr); min-height:590px; gap:18px; }.hero-attribute-panel { display:flex; flex-direction:column; padding:22px; border:1px solid rgba(224,177,88,.4); background:rgba(12,12,12,.68); }.hero-attribute-panel h3 { margin:0 0 18px; color:#e8cc90; text-align:center; font-size:31px; font-family:STFangsong,SimSun,serif; }.hero-attribute-list { display:grid; gap:13px; }.hero-attribute-row { display:grid; grid-template-columns:49px 72px minmax(110px,1fr) 46px; align-items:center; gap:12px; padding:9px 12px; background:rgba(19,18,16,.8); border:1px solid rgba(194,151,79,.32); }.attribute-icon { width:42px; height:42px; display:grid; place-items:center; color:#fff0ce; background:color-mix(in srgb,var(--attribute) 55%,#261f1a); border:2px solid color-mix(in srgb,var(--attribute) 64%,#d6b15a); border-radius:50%; font-weight:900; }.hero-attribute-row b { color:#e9dbc0; font-size:20px; }.hero-attribute-row i { height:20px; overflow:hidden; background:#1d1912; border:1px solid #8e6b33; }.hero-attribute-row em { display:block; height:100%; background:linear-gradient(90deg,color-mix(in srgb,var(--attribute) 72%,#fff),var(--attribute)); box-shadow:0 0 10px var(--attribute); }.hero-attribute-row strong { color:#f6e8c9; font-size:25px; text-align:right; }.hero-detail-footer { display:flex; gap:0; flex-wrap:wrap; margin-top:auto; padding-top:18px; }.hero-detail-footer span { padding:10px 12px; color:#d9bd7c; border:1px solid rgba(224,177,88,.31); background:rgba(18,16,12,.68); }.hero-detail-art { display:grid; place-items:center; overflow:hidden; min-height:480px; background:radial-gradient(circle at 50% 38%,rgba(142,113,57,.32),rgba(16,14,14,.65) 62%); }.hero-detail-art img { width:100%; height:100%; max-height:620px; object-fit:contain; }
+
+.confirm-cost { padding:12px; }.confirm-cost h2 { margin-top:0; color:#f1d190; }.confirm-cost p { max-width:520px; color:#d8c8a8; line-height:1.7; }.confirm-cost b { color:#f3c458; }
+.world-boss-hero { display:grid; grid-template-columns:minmax(430px,1.55fr) minmax(300px,.8fr); gap:0; overflow:hidden; padding:0; }.world-boss-video { position:relative; min-height:340px; background:#070707; }.world-boss-video img { width:100%; height:100%; object-fit:cover; filter:brightness(.78) saturate(1.06); }.world-boss-video span { position:absolute; left:18px; bottom:18px; padding:8px 12px; color:#edd497; background:rgba(0,0,0,.6); border-left:2px solid #e0b158; }.world-boss-status { padding:34px; background:linear-gradient(145deg,rgba(41,27,20,.98),rgba(14,12,12,.98)); }.world-boss-status h3 { margin:0 0 20px; color:#f0c86c; font-size:31px; }.world-boss-count { display:flex; align-items:baseline; gap:8px; margin:28px 0 10px; }.world-boss-count b { color:#fff0bc; font-size:48px; }.world-boss-status p,.world-boss-status small { color:#c7b696; }.world-boss-roster { margin-top:14px; }.world-boss-roster .panel-title small { margin-left:auto; color:#dcb566; }
+.sparring-panel { margin-top:14px; }.sparring-heading { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:16px; }.sparring-heading p { margin:6px 0 0; color:var(--muted); }.sparring-heading>span { padding:8px 12px; color:#e5c779; border:1px solid rgba(224,177,88,.35); background:rgba(0,0,0,.24); white-space:nowrap; }.sparring-panel h4 { margin:0 0 10px; color:#e6c987; font-size:20px; }
+.modal.modal-mailbox { width:min(680px,calc(100vw - 32px)); }.mail-list { display:grid; gap:8px; max-height:58vh; overflow:auto; }.mail-row { display:grid; gap:5px; width:100%; padding:13px; color:#eadcc1; text-align:left; background:rgba(22,19,16,.76); border:1px solid rgba(224,177,88,.2); cursor:pointer; font:inherit; }.mail-row.unread { border-left:3px solid #f0bf5d; background:rgba(92,65,30,.33); }.mail-row span,.mail-row small { color:#c2b293; }.mail-row small { font-size:12px; }
+
 .merc-action-row {
   flex-wrap: nowrap;
   gap: 8px;
@@ -1115,6 +1139,7 @@ body.auth-locked .auth-gate {
 .summon-cinematic-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; color: #e7d5af; }
 @media (max-width: 980px) { .home-folds { grid-template-columns: 1fr; } }
 @media (max-width: 560px) { .page-title { align-items: flex-start; flex-direction: column; } .summon-gate { aspect-ratio: 4 / 3; } .summon-gate-copy { bottom: 12px; } .home-disclosure summary { align-items: flex-start; flex-direction: column; gap: 4px; } .home-disclosure summary strong { text-align: left; } }
+@media (max-width: 760px) { .merc-card-showcase{grid-template-columns:130px minmax(0,1fr);min-height:0}.merc-art-frame,.merc-card-showcase .hero-portrait{min-height:240px}.merc-showcase-heading .class-title{font-size:32px}.level-plate{padding:5px 9px;font-size:15px}.hero-detail-view{padding:14px}.hero-detail-layout,.world-boss-hero{grid-template-columns:1fr}.hero-detail-layout{min-height:0}.hero-detail-art{min-height:350px;grid-row:1}.hero-attribute-panel{padding:14px}.hero-detail-title{gap:8px}.hero-detail-title .class-title{font-size:32px}.detail-close{min-width:82px}.hero-attribute-row{grid-template-columns:42px 58px minmax(70px,1fr) 34px;gap:7px;padding:7px}.hero-attribute-row b{font-size:16px}.hero-attribute-row strong{font-size:19px}.world-boss-video{min-height:230px}.sparring-heading{flex-direction:column}.sparring-heading>span{white-space:normal}.mail-button span{display:none} }
 @media (prefers-reduced-motion: reduce) { .summon-gate img { transition: none; } }
 
 /* 英雄交易 */

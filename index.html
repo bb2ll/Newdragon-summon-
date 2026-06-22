@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>地下城佣兵团</title>
-    <link rel="stylesheet" href="./src/styles.css" />
+    <link rel="stylesheet" href="./src/styles.css?v=20260622-worldboss" />
   </head>
   <body>
     <section id="authGate" class="auth-gate"></section>
@@ -24,6 +24,7 @@
             <div class="resource-pill"><span>存档</span><strong id="saveState">已保存</strong></div>
             <div class="resource-pill"><span>账号</span><strong id="accountName">未登录</strong></div>
           </div>
+          <button class="mail-button" data-action="open-mailbox" aria-label="打开信箱">✉ <span>信箱</span><b id="mailCount">0</b></button>
           <button class="game-button" id="logoutButton" data-action="sign-out" hidden>退出登录</button>
         </div>
       </header>
@@ -44,7 +45,7 @@
       <aside class="toast-region" id="toastRegion" aria-live="polite"></aside>
       <div class="modal-layer" id="modalLayer"></div>
     </div>
-    <script src="./src/game-data.js"></script>
-    <script src="./src/app.js"></script>
+    <script src="./src/game-data.js?v=20260622-worldboss"></script>
+    <script src="./src/app.js?v=20260622-worldboss"></script>
   </body>
 </html>

@@ -4,6 +4,7 @@ const STORAGE_KEY = "dungeon_mercenary_unified_state";
 const AUTH_KEY = "dungeon_mercenary_unified_auth";
 const API_BASE = window.location.protocol === "file:" ? "http://localhost:4177" : window.location.origin;
 const attrs = Object.keys(attrLabels);
+const workCosts = { start: 80, stop: 5 };
 
 let auth = loadAuth();
 let authMode = "login";
@@ -78,6 +79,9 @@ function seedState() {
     leaderboard: [],
     arenaHistory: [],
     worldBoss: null,
+    worldBossQueue: [],
+    sparring: { defenders: [], history: [], nextCycleAt: Date.now() + 86400000 },
+    mailbox: [],
     online: false,
     dailyRecruitCount: 0,
     lastRecruitDate: new Date().toDateString(),
@@ -172,6 +176,9 @@ function normalizeState() {
   state.arenaHistory ||= [];
   state.selectedDragonIds ||= [];
   state.worldBoss ||= null;
+  state.worldBossQueue ||= [];
+  state.sparring ||= { defenders: [], history: [], nextCycleAt: Date.now() + 86400000 };
+  state.mailbox ||= [];
   state.online ||= false;
   state.workFilters ||= { class: "all", attribute: "all", minimum: 0, sort: "recommended" };
   state.battleHistory ||= [];
@@ -645,6 +652,8 @@ function render() {
   document.querySelector("#primaryAmount").textContent = formatPrimary(state.primary);
   document.querySelector("#goldAmount").textContent = format(state.gold, 3);
   document.querySelector("#onlineCount").textContent = state.online ? "已联机" : "本地";
+  const mailCount = document.querySelector("#mailCount");
+  if (mailCount) mailCount.textContent = state.mailbox.filter((mail) => !mail.read).length;
   renderNav();
   renderHome();
   renderMercenaries();
@@ -745,24 +754,17 @@ function filteredMercenaries() {
 
 function mercCard(merc, options = {}) {
   const selected = options.selectable && state.selectedMercenaryId === merc.id;
-  return `<article class="merc-card ${selected ? "selected" : ""}" ${options.selectable ? `data-select-merc="${merc.id}"` : ""}>
-    <img class="hero-portrait" src="${getHero(merc)}" alt="${className(merc.class)}">
-    <div>
-      <h3>${className(merc.class)}</h3>
-      <div class="tag-row">
-        <span class="tag ${classes[merc.class].color}">LV.${merc.level}</span>
-        <span class="tag" style="border-color:${qualityColor(merc)};color:${qualityColor(merc)}">${qualityName(merc)}</span>
-        <span class="tag">${statusText(merc.status)}</span>
-        <span class="tag">战力 ${format(battlePower(merc))}</span>
-        <span class="tag">总属性 ${totalAttr(merc)}</span>
-      </div>
-      <div class="stat-list">
-        ${attrs.map((a) => `<div class="stat-line"><span>${attrLabels[a]}</span><strong>${merc.base[a]}</strong></div>`).join("")}
-      </div>
+  return `<article class="merc-card merc-card-showcase ${selected ? "selected" : ""}" ${options.selectable ? `data-select-merc="${merc.id}"` : ""}>
+    <div class="merc-art-frame"><img class="hero-portrait" src="${getHero(merc)}" alt="${className(merc.class)}"></div>
+    <div class="merc-showcase-info">
+      <div class="merc-showcase-heading"><h3 class="class-title ${merc.class}">${className(merc.class)}</h3><span class="level-plate">LV.${merc.level}</span></div>
+      <div class="merc-showcase-badges"><span class="quality-badge" style="--quality:${qualityColor(merc)}">${qualityName(merc)}</span><span class="status-badge">${statusText(merc.status)}</span></div>
+      <div class="merc-showcase-metrics"><span>战力 <b>${format(battlePower(merc))}</b></span><span>总属性 <b>${totalAttr(merc)}</b></span></div>
+      <div class="stat-list merc-showcase-stats">${attrs.map((a) => `<div class="stat-line"><span>${attrLabels[a]}</span><strong>${merc.base[a]}</strong></div>`).join("")}</div>
       <div class="button-row merc-action-row">
         ${button("详情", `detail:${merc.id}`)}
         ${button("升级", `upgrade:${merc.id}`, "success", merc.status !== "idle" || merc.level >= 12)}
-        ${button("派遣", `start-work:${merc.id}`, "success", merc.status !== "idle")}
+        ${button("派遣", `prepare-start-work:${merc.id}`, "success", merc.status !== "idle")}
       </div>
     </div>
   </article>`;
@@ -777,7 +779,7 @@ function renderWork() {
   document.querySelector("#view-work").innerHTML = html`
     <div class="page-title">
       <div><h2>工作派遣</h2><p>安排空闲佣兵持续赚取碎金。工作期间佣兵不能出战或升级。</p></div>
-      <div class="button-row">${button(`一键领取 ${format(totalPending, 3)}G`, "claim-all", "success", totalPending <= 0)}${button(`一键派遣 ${idle.length}人`, "dispatch-filtered", "success", idle.length === 0)}</div>
+      <div class="button-row">${button(`一键领取 ${format(totalPending, 3)}G`, "claim-all", "success", totalPending <= 0)}${button(`一键派遣 ${idle.length}人`, "prepare-dispatch-filtered", "success", idle.length === 0)}</div>
     </div>
     <div class="work-summary">
       <div><span>工作中</span><strong>${working.length}</strong></div>
@@ -791,7 +793,7 @@ function renderWork() {
         <span>自动优先：深渊领域 → 职业工作 → 打零工</span>
       </div>
       <div class="work-type-grid">${Object.entries(workTypes).map(([key, job]) => workTypeCard(key, job)).join("")}</div>
-      <p class="work-note">连续工作15、30、60天后，当前收益分别降至80%、40%、10%；领取收益或停止工作后恢复正常。</p>
+      <p class="work-note">开始工作每名佣兵消耗 ${workCosts.start} G 碎金，退出工作结算时消耗 ${workCosts.stop} G 碎金；连续工作15、30、60天后，当前收益分别降至80%、40%、10%。</p>
       <div class="work-rate-card">
         <strong>职业工作收益速查</strong>
         <table class="rate-table">
@@ -836,7 +838,7 @@ function workRow(merc) {
   return `<div class="row work-merc-row">
     <img src="${getHero(merc)}" alt="${className(merc.class)}">
     <div class="work-merc-info"><strong>${className(merc.class)} LV.${merc.level}</strong><small>${workTypes[merc.workType]?.name || "工作"} · ${formatWorkDuration(merc.workStartTime)}</small><span class="decay ${workDecayRate(merc) < 1 ? "reduced" : ""}">${decayStatus(merc)} · 待领 ${format(pendingEarning(merc), 3)} G</span></div>
-    <div class="button-row">${button("领取", `claim:${merc.id}`, "success")}${button("停止", `stop-work:${merc.id}`, "danger")}</div>
+    <div class="button-row">${button("领取", `claim:${merc.id}`, "success")}${button(`退出 (${workCosts.stop}G)`, `prepare-stop-work:${merc.id}`, "danger")}</div>
   </div>`;
 }
 
@@ -850,7 +852,7 @@ function idleWorkRow(merc) {
   return `<div class="row work-merc-row">
     <img src="${getHero(merc)}" alt="${className(merc.class)}">
     <div class="work-merc-info"><strong>${className(merc.class)} LV.${merc.level}</strong><small>当前可做：${job.name} · 时薪 ${format(currentHourly, 3)} G</small><span>${attrLabels[config.main]} ${attrValue(merc, config.main)} · ${attrLabels[config.sub]} ${attrValue(merc, config.sub)} · 总属性 ${totalAttr(merc)}</span><span>${advancedUnlocked ? `职业岗位已解锁，职业时薪 ${advancedHourly} G。` : `${workQualificationHint(merc)} 达标后职业时薪约 ${advancedHourly} G。`}</span></div>
-    ${button("开始工作", `start-work:${merc.id}`, "success")}
+    ${button(`开始工作 (${workCosts.start}G)`, `prepare-start-work:${merc.id}`, "success")}
   </div>`;
 }
 
@@ -922,51 +924,33 @@ function dungeonHeroCard(merc) {
 }
 
 function renderDragon() {
-  const unlocked = state.mercenaries.some((m) => m.level >= 10);
-  const eligible = unlocked ? state.mercenaries.filter((m) => m.status === "idle") : [];
-  const selected = state.selectedDragonIds.map((id) => state.mercenaries.find((m) => m.id === id)).filter(Boolean);
-  const remoteBoss = state.worldBoss;
-  const hp = remoteBoss ? remoteBoss.hp : dragon.base.hp + Math.max(0, selected.length - 1) * dragon.perMerc.hp;
-  const maxHp = remoteBoss ? remoteBoss.maxHp : hp;
-  const attack = remoteBoss ? remoteBoss.attack : dragon.base.attack + selected.length * dragon.perMerc.attack;
+  const selectable = state.mercenaries;
+  const selected = state.selectedDragonIds.map((id) => state.mercenaries.find((m) => m.id === id)).filter(Boolean).slice(0, 10);
+  const boss = state.worldBoss || { hp: dragon.base.hp, maxHp: dragon.base.hp, attack: dragon.base.attack };
+  const queue = state.worldBossQueue || [];
+  const queuedMe = queue.find((item) => item.user === currentUserName());
   document.querySelector("#view-dragon").innerHTML = html`
-    <div class="page-title">
-      <div><h2>龙巢</h2><p>至少拥有 1 名 LV.10 佣兵才可解锁挑战。解锁后可从空闲佣兵中选择最多 50 人参战，古龙会随人数增强。</p></div>
-      <div class="button-row">${button("全选", "dragon-select-all", "", eligible.length === 0)}${button(`挑战古龙 ${selected.length}人`, "dragon-start", "danger", selected.length === 0 || !moneyEnough(dragon.costGold, dragon.costPrimary))}</div>
-    </div>
-    <div class="grid two">
-      <div class="panel">
-        <h3 class="panel-title"><img src="./assets/icons/icon_defeat_broken_shield.png" alt="">深渊古龙</h3>
-        <div class="metric-row">
-          <div class="metric"><span>生命</span><strong>${format(hp)} / ${format(maxHp)}</strong></div>
-          <div class="metric"><span>攻击</span><strong>${format(attack)}</strong></div>
-          <div class="metric"><span>入场费</span><strong>${format(dragon.costGold)}G + ${formatPrimary(dragon.costPrimary)}B</strong></div>
-          <div class="metric"><span>参战</span><strong>${selected.length}</strong></div>
-        </div>
-        <div class="merc-grid" style="margin-top:14px">${eligible.length ? eligible.map(dragonSelectCard).join("") : `<div class="empty">需要至少 1 名 LV.10 佣兵解锁龙巢。</div>`}</div>
-      </div>
-      <div class="panel">
-        <h3 class="panel-title"><img src="./assets/icons/icon_victory_banner.png" alt="">龙战日志</h3>
-        ${battleStage(selected[0]?.class || "warrior", "深渊古龙", state.lastDragonCaption || "深渊古龙正在注视佣兵团", state.lastDragonAction || "idle", state.lastDragonAction === "death" ? "death" : "breath")}
-        <div class="battle-log">${state.dragonLog.map((l) => `<p>${l}</p>`).join("")}</div>
-      </div>
-    </div>`;
+    <div class="page-title"><div><h2>世界 Boss · 龙巢</h2><p>每位玩家可放置最多 10 名英雄等待百人集结；工作与数据迷宫不受影响，满 100 位玩家后系统自动开战并通过信箱结算。</p></div><div class="button-row">${button("全选 10 名", "dragon-select-all", "", selectable.length === 0)}${button(queuedMe ? "更新等待队伍" : "加入世界 Boss 等待", "world-boss-queue", "danger", selected.length === 0)}</div></div>
+    <section class="world-boss-hero panel"><div class="world-boss-video"><img src="./assets/backgrounds/bg_dragon_lair.png" alt="巨龙战斗动画占位图"><span>巨龙战斗前动画 · 即将接入</span></div><div class="world-boss-status"><h3>深渊古龙</h3><div class="progress"><span style="width:${Math.max(0, boss.hp / boss.maxHp * 100)}%"></span></div><p>生命 ${format(boss.hp)} / ${format(boss.maxHp)} · 攻击 ${format(boss.attack)}</p><div class="world-boss-count"><b>${queue.length}</b><span>/ 100 位玩家已集结</span></div><small>${queuedMe ? `你已放入 ${queuedMe.party.length} 名英雄，等待系统自动组队。` : "选择英雄后加入等待队伍。"}</small></div></section>
+    <div class="panel world-boss-roster"><h3 class="panel-title"><img src="./assets/icons/icon_victory_banner.png" alt="">选择等待组队的英雄 <small>${selected.length}/10</small></h3><p class="muted">这些英雄仅登记为世界 Boss 候选，不会改变工作、迷宫或其他玩法中的可用状态。</p><div class="merc-grid">${selectable.length ? selectable.map(dragonSelectCard).join("") : `<div class="empty">暂无可供登记的英雄。</div>`}</div></div>`;
 }
 
 function dragonSelectCard(merc) {
   const checked = state.selectedDragonIds.includes(merc.id);
   return `<article class="merc-card ${checked ? "selected" : ""}" data-dragon-merc="${merc.id}">
     <img class="hero-portrait" src="${getHero(merc)}" alt="${className(merc.class)}">
-    <div><h3>${className(merc.class)}</h3><div class="tag-row"><span class="tag">LV.${merc.level}</span><span class="tag">战力 ${format(battlePower(merc))}</span><span class="tag">剩余 ${remainingDailyBattles(merc)} 次</span></div><small>${checked ? "已参战" : "点击加入龙战"}</small></div>
+    <div><h3>${className(merc.class)}</h3><div class="tag-row"><span class="tag">LV.${merc.level}</span><span class="tag">战力 ${format(battlePower(merc))}</span><span class="tag">${statusText(merc.status)}</span></div><small>${checked ? "已加入等待队伍" : "点击加入等待队伍"}</small></div>
   </article>`;
 }
 
 function renderSocial() {
   const uploadable = state.mercenaries.filter((m) => m.status === "idle");
   const sorted = [...state.leaderboard].sort((a, b) => b.merc.level - a.merc.level || b.power - a.power);
+  const sparring = state.sparring || { defenders: [], history: [], nextCycleAt: Date.now() + 86400000 };
+  const defendable = state.mercenaries.filter((m) => m.status !== "trading");
   document.querySelector("#view-social").innerHTML = html`
     <div class="page-title">
-      <div><h2>互动区</h2><p>上传英雄进入荣誉大厅，也可以挑战其他玩家或模拟守擂英雄。</p></div>
+      <div><h2>排行榜</h2><p>上传英雄进入荣誉大厅，胜利后会自动同步替换目标；下方可参与按日结算的擂台切磋。</p></div>
       <div class="button-row">${button("刷新排行", "refresh-board", "success")}${button("重置排行", "reset-board", "danger")}</div>
     </div>
     <div class="grid two">
@@ -981,7 +965,8 @@ function renderSocial() {
         <h3 class="panel-title" style="margin-top:18px">挑战记录</h3>
         <div class="list">${state.arenaHistory.length ? state.arenaHistory.slice(-6).reverse().map(arenaHistoryRow).join("") : `<div class="empty">暂无挑战记录。</div>`}</div>
       </div>
-    </div>`;
+    </div>
+    <section class="sparring-panel panel"><div class="sparring-heading"><div><h3 class="panel-title"><img src="./assets/icons/icon_attack_sword.png" alt="">擂台切磋</h3><p>守擂英雄会自动同步到服务器；攻擂点击后直接确认，胜负和席位变更均通过信箱通知。</p></div><span>本轮结算：${new Date(sparring.nextCycleAt).toLocaleString("zh-CN", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" })}</span></div><div class="grid two"><div><h4>攻擂</h4><div class="list">${sparring.defenders.length ? sparring.defenders.slice(0, 8).map(sparringRow).join("") : `<div class="empty">擂台暂未开放守擂英雄。</div>`}</div></div><div><h4>守擂</h4><p class="muted">选择一名英雄后立即同步。英雄仍可工作或进入数据迷宫。</p><div class="list">${defendable.length ? defendable.slice(0, 6).map(defendRow).join("") : `<div class="empty">暂无可登记英雄。</div>`}</div></div></div></section>`;
 }
 
 function renderTrade() {
@@ -1110,7 +1095,7 @@ function openSummonGate() {
   summonGatePending = true;
   openModal(`<div class="summon-cinematic">
     <video id="summonGateVideo" autoplay playsinline muted preload="auto">
-      <source src="./assets/media/summon_animation_01.mp4" type="video/mp4">
+      <source src="./assets/media/summon_animation_02.mp4" type="video/mp4">
     </video>
     <div class="summon-cinematic-bar"><span>召唤门正在开启……</span>${button("跳过动画", "summon-finish")}</div>
   </div>`);
@@ -1147,15 +1132,55 @@ function openRecruitModal(merc) {
 function openDetail(id) {
   const merc = state.mercenaries.find((m) => m.id === id);
   if (!merc) return;
-  openModal(`<div class="modal-header"><h2>${className(merc.class)}详情</h2><button class="game-button" data-action="close-modal">关闭</button></div>
-    <div class="summon-hero">
-      <div>
-        <div class="tag-row"><span class="tag ${classes[merc.class].color}">LV.${merc.level}</span><span class="tag" style="border-color:${qualityColor(merc)};color:${qualityColor(merc)}">${qualityName(merc)}</span><span class="tag">${statusText(merc.status)}</span><span class="tag">战力 ${format(battlePower(merc))}</span><span class="tag">总属性 ${totalAttr(merc)}</span></div>
-        <div class="stat-list">${attrs.map((a) => `<div class="stat-line"><span>${attrLabels[a]}</span><strong>${merc.base[a]}</strong></div>`).join("")}</div>
-        <p class="muted">总属性：${totalAttr(merc)} · 剩余挑战次数：${remainingDailyBattles(merc)}</p>
-      </div>
-      <img src="${getHero(merc)}" alt="${className(merc.class)}">
-    </div>`);
+  const attributeColors = { strength: "#ee8b3a", agility: "#77b94d", intelligence: "#6464e8", constitution: "#e9b838", willpower: "#a65ed3", spirit: "#58c7ca" };
+  openModal(`<div class="hero-detail-view">
+    <div class="hero-detail-title"><span class="detail-class-mark">✧</span><h2 class="class-title ${merc.class}">${className(merc.class)}</h2><span class="level-plate">LV.${merc.level}</span><button class="game-button detail-close" data-action="close-modal">关闭</button></div>
+    <div class="hero-detail-layout">
+      <section class="hero-attribute-panel"><h3>属性</h3><div class="hero-attribute-list">${attrs.map((a) => `<div class="hero-attribute-row"><span class="attribute-icon" style="--attribute:${attributeColors[a]}">${attrLabels[a].slice(0, 1)}</span><b>${attrLabels[a]}</b><i><em style="width:${merc.base[a]}%;--attribute:${attributeColors[a]}"></em></i><strong>${merc.base[a]}</strong></div>`).join("")}</div><div class="hero-detail-footer"><span>🎁 ${qualityName(merc)}</span><span>▣ ${statusText(merc.status)}</span><span>⚔ 战力 ${format(battlePower(merc))}</span><span>⬡ 总属性 ${totalAttr(merc)}</span></div></section>
+      <section class="hero-detail-art"><img src="${getHero(merc)}" alt="${className(merc.class)}"></section>
+    </div>
+  </div>`, "modal-hero-detail");
+}
+
+function sparringRow(entry) {
+  return `<div class="row"><div><strong>${entry.user} · ${className(entry.merc.class)} LV.${entry.merc.level}</strong><br><small>战力 ${format(entry.power)} · 自动结算中</small></div>${button("攻擂", `sparring-challenge:${entry.id}`, "danger", entry.user === currentUserName())}</div>`;
+}
+
+function defendRow(merc) {
+  return `<div class="row"><div><strong>${className(merc.class)} LV.${merc.level}</strong><br><small>战力 ${format(battlePower(merc))} · ${statusText(merc.status)}</small></div>${button("守擂", `sparring-defend:${merc.id}`, "success")}</div>`;
+}
+
+async function queueWorldBoss() {
+  const party = state.selectedDragonIds.map((id) => state.mercenaries.find((merc) => merc.id === id)).filter(Boolean).slice(0, 10);
+  if (!party.length) return addToast("请先选择至少一名英雄。");
+  const result = await apiRequest("/api/world-boss/queue", { method: "POST", body: { party } });
+  if (!result) return addToast("世界 Boss 等待队伍同步失败。");
+  state.worldBossQueue = result.queue || [];
+  addToast(result.resolved ? "百人队伍已自动结算，请查看信箱。" : `已同步 ${party.length} 名英雄，等待百人组队。`);
+  refreshMailbox();
+  render();
+}
+
+async function setSparringDefense(id) {
+  const merc = state.mercenaries.find((item) => item.id === id);
+  if (!merc) return;
+  const result = await apiRequest("/api/sparring/defend", { method: "POST", body: { merc, power: battlePower(merc) } });
+  if (!result) return addToast("守擂同步失败，请检查联机状态。");
+  state.sparring = result.sparring;
+  addToast("守擂英雄已自动同步到服务器。");
+  refreshMailbox();
+  render();
+}
+
+async function challengeSparring(id) {
+  const attacker = state.mercenaries.filter((merc) => merc.status !== "trading").sort((a, b) => battlePower(b) - battlePower(a))[0];
+  if (!attacker) return addToast("没有可用于攻擂的英雄。");
+  const result = await apiRequest("/api/sparring/challenge", { method: "POST", body: { entryId: id, attacker, power: battlePower(attacker) } });
+  if (!result) return addToast("攻擂同步失败，请检查联机状态。");
+  state.sparring = result.sparring;
+  addToast(result.record.won ? "攻擂成功，已自动接替守擂位置。" : "本次攻擂未能取胜，结果已同步。");
+  refreshMailbox();
+  render();
 }
 
 function openUpgrade(id) {
@@ -1212,9 +1237,16 @@ function finishUpgrade(result) {
   openModal(`<div class="upgrade-result ${resultText}"><div class="upgrade-effect"></div><div class="upgrade-result-word">${resultText}</div><p>${detail}</p><button class="game-button success" data-action="return-mercenaries">返回佣兵管理</button></div>`, "modal-upgrade-result");
 }
 
+function confirmWorkStart(id) {
+  const merc = state.mercenaries.find((m) => m.id === id);
+  if (!merc || merc.status !== "idle") return;
+  openModal(`<div class="confirm-cost"><h2>确认开始工作</h2><p>派遣 <strong>${className(merc.class)} LV.${merc.level}</strong> 进入 ${bestWork(merc).name}，需要支付 <b>${format(workCosts.start)} G</b> 碎金作为安排费用。</p><div class="button-row">${button("确认派遣", `confirm-start-work:${id}`, "success", state.gold < workCosts.start)}${button("暂不派遣", "close-modal")}</div></div>`);
+}
+
 function startWork(id) {
   const merc = state.mercenaries.find((m) => m.id === id);
   if (!merc || merc.status !== "idle") return;
+  if (!spend(workCosts.start, 0)) return addToast("碎金不足，无法支付工作安排费用。");
   const job = bestWork(merc);
   merc.status = "working";
   merc.workType = job.key;
@@ -1226,9 +1258,18 @@ function startWork(id) {
   render();
 }
 
-function dispatchFiltered() {
+function confirmDispatchFiltered() {
   const targets = filteredIdleWorkers();
   if (!targets.length) return addToast("当前筛选下没有可派遣的空闲佣兵。");
+  const totalCost = targets.length * workCosts.start;
+  openModal(`<div class="confirm-cost"><h2>确认一键打工</h2><p>将派遣 <strong>${targets.length}</strong> 名佣兵开始工作，共需支付 <b>${format(totalCost)} G</b> 碎金安排费用。</p><div class="button-row">${button("确认派遣", "confirm-dispatch-filtered", "success", state.gold < totalCost)}${button("暂不派遣", "close-modal")}</div></div>`);
+}
+
+function dispatchFiltered() {
+  const targets = filteredIdleWorkers();
+  const totalCost = targets.length * workCosts.start;
+  if (!targets.length) return addToast("当前筛选下没有可派遣的空闲佣兵。");
+  if (!spend(totalCost, 0)) return addToast("碎金不足，无法支付工作安排费用。");
   const now = Date.now();
   targets.forEach((merc) => {
     merc.status = "working";
@@ -1246,6 +1287,7 @@ function dispatchFiltered() {
 function claimWork(id, stop = false) {
   const merc = state.mercenaries.find((m) => m.id === id);
   if (!merc || merc.status !== "working") return;
+  if (stop && !spend(workCosts.stop, 0)) return addToast("碎金不足，无法支付退出工作费用。");
   const amount = pendingEarning(merc);
   state.gold += amount;
   merc.workStartTime = Date.now();
@@ -1257,6 +1299,12 @@ function claimWork(id, stop = false) {
   }
   addToast(`领取 ${format(amount, 3)} G。`);
   render();
+}
+
+function confirmStopWork(id) {
+  const merc = state.mercenaries.find((m) => m.id === id);
+  if (!merc || merc.status !== "working") return;
+  openModal(`<div class="confirm-cost"><h2>确认退出工作</h2><p>结束 <strong>${className(merc.class)} LV.${merc.level}</strong> 的工作并结算收益，需要支付 <b>${format(workCosts.stop)} G</b> 碎金退出费用。</p><div class="button-row">${button("确认退出", `confirm-stop-work:${id}`, "danger", state.gold < workCosts.stop)}${button("继续工作", "close-modal")}</div></div>`);
 }
 
 function tickWork(showToast = true) {
@@ -1739,9 +1787,36 @@ async function refreshOnlineData(showToast = false) {
     state.arenaHistory = board.arenaHistory;
   }
   const boss = await apiRequest("/api/world-boss");
-  if (boss) state.worldBoss = boss.boss;
+  if (boss) { state.worldBoss = boss.boss; state.worldBossQueue = boss.queue || []; }
+  const sparring = await apiRequest("/api/sparring", { quiet: true });
+  if (sparring) state.sparring = sparring.sparring;
+  await refreshMailbox(false);
   if (showToast) addToast("联机数据已刷新。");
   render();
+}
+
+async function refreshMailbox(shouldRender = false) {
+  if (!isLoggedIn()) return;
+  const result = await apiRequest("/api/mail", { quiet: true });
+  if (!result) return;
+  state.mailbox = result.mail || [];
+  const count = document.querySelector("#mailCount");
+  if (count) count.textContent = state.mailbox.filter((mail) => !mail.read).length;
+  if (shouldRender) render();
+}
+
+function openMailbox() {
+  const mails = state.mailbox || [];
+  openModal(`<div class="mailbox"><div class="modal-header"><h2>信箱</h2><div class="button-row">${button("全部已读", "read-all-mail")}${button("关闭", "close-modal")}</div></div><p class="muted">世界 Boss、排行榜和英雄交易的动态会投递到这里。</p><div class="mail-list">${mails.length ? mails.map((mail) => `<button class="mail-row ${mail.read ? "read" : "unread"}" data-action="read-mail:${mail.id}"><strong>${mail.title}</strong><span>${mail.content}</span><small>${new Date(mail.time).toLocaleString("zh-CN")}</small></button>`).join("") : `<div class="empty">暂时没有新邮件。</div>`}</div></div>`, "modal-mailbox");
+}
+
+async function readMail(id) {
+  const result = await apiRequest("/api/mail/read", { method: "POST", body: { id } });
+  if (!result) return;
+  state.mailbox = result.mail || [];
+  openMailbox();
+  const count = document.querySelector("#mailCount");
+  if (count) count.textContent = state.mailbox.filter((mail) => !mail.read).length;
 }
 
 async function apiRequest(path, options = {}) {
@@ -1886,7 +1961,7 @@ document.addEventListener("click", (event) => {
   const dragonMerc = event.target.closest("[data-dragon-merc]");
   if (dragonMerc) {
     const id = dragonMerc.dataset.dragonMerc;
-    state.selectedDragonIds = state.selectedDragonIds.includes(id) ? state.selectedDragonIds.filter((x) => x !== id) : [...state.selectedDragonIds, id].slice(0, 50);
+    state.selectedDragonIds = state.selectedDragonIds.includes(id) ? state.selectedDragonIds.filter((x) => x !== id) : [...state.selectedDragonIds, id].slice(0, 10);
     render();
     return;
   }
@@ -1921,14 +1996,22 @@ document.addEventListener("click", (event) => {
     return render();
   }
   if (action === "close-modal") return closeModal();
+  if (action === "open-mailbox") return openMailbox();
+  if (action === "read-all-mail") return readMail("all");
+  if (action.startsWith("read-mail:")) return readMail(action.split(":")[1]);
   if (action.startsWith("detail:")) return openDetail(action.split(":")[1]);
   if (action.startsWith("upgrade:")) return openUpgrade(action.split(":")[1]);
   if (action.startsWith("confirm-upgrade:")) return performUpgrade(action.split(":")[1]);
-  if (action.startsWith("start-work:")) return startWork(action.split(":")[1]);
+  if (action.startsWith("prepare-start-work:")) return confirmWorkStart(action.split(":")[1]);
+  if (action.startsWith("confirm-start-work:")) { closeModal(); return startWork(action.split(":")[1]); }
+  if (action.startsWith("start-work:")) return confirmWorkStart(action.split(":")[1]);
   if (action.startsWith("claim:")) return claimWork(action.split(":")[1]);
-  if (action.startsWith("stop-work:")) return claimWork(action.split(":")[1], true);
+  if (action.startsWith("prepare-stop-work:")) return confirmStopWork(action.split(":")[1]);
+  if (action.startsWith("confirm-stop-work:")) { closeModal(); return claimWork(action.split(":")[1], true); }
+  if (action.startsWith("stop-work:")) return confirmStopWork(action.split(":")[1]);
   if (action === "claim-all") return claimAll();
-  if (action === "dispatch-filtered") return dispatchFiltered();
+  if (action === "prepare-dispatch-filtered" || action === "dispatch-filtered") return confirmDispatchFiltered();
+  if (action === "confirm-dispatch-filtered") { closeModal(); return dispatchFiltered(); }
   if (action === "start-battle") return startBattle();
   if (action === "return-mercenaries") {
     upgradeResultOpen = false;
@@ -1955,10 +2038,10 @@ document.addEventListener("click", (event) => {
     return render();
   }
   if (action === "dragon-select-all") {
-    if (!state.mercenaries.some((m) => m.level >= 10)) return addToast("需要至少 1 名 LV.10 佣兵解锁龙巢。");
-    state.selectedDragonIds = state.mercenaries.filter((m) => m.status === "idle").slice(0, 50).map((m) => m.id);
+    state.selectedDragonIds = state.mercenaries.slice(0, 10).map((m) => m.id);
     return render();
   }
+  if (action === "world-boss-queue") return queueWorldBoss();
   if (action === "dragon-start") return startDragonBattle();
   if (action === "refresh-board") return refreshOnlineData(true);
   if (action === "reset-board") {
@@ -1967,6 +2050,8 @@ document.addEventListener("click", (event) => {
   }
   if (action.startsWith("upload:")) return uploadHero(action.split(":")[1]);
   if (action.startsWith("arena:")) return arenaChallenge(action.split(":")[1]);
+  if (action.startsWith("sparring-defend:")) return setSparringDefense(action.split(":")[1]);
+  if (action.startsWith("sparring-challenge:")) return challengeSparring(action.split(":")[1]);
   if (action.startsWith("grant-")) return grant(action.replace("grant-", ""));
   if (action === "reset-game") {
     hydrateIncomingState(seedState());

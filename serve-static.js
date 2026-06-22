@@ -72,7 +72,9 @@ function defaultState() {
       participants: {},
       defeated: false,
       updatedAt: Date.now()
-    }
+    },
+    worldBossQueue: [],
+    sparring: { defenders: [], history: [], nextCycleAt: Date.now() + 86400000 }
   };
 }
 
@@ -85,6 +87,8 @@ function loadServerState() {
     parsed.arenaHistory ||= [];
     parsed.leaderboard ||= defaultState().leaderboard;
     parsed.worldBoss ||= defaultState().worldBoss;
+    parsed.worldBossQueue ||= [];
+    parsed.sparring ||= defaultState().sparring;
     return parsed;
   } catch {
     const state = defaultState();
@@ -99,6 +103,57 @@ function saveServerState(state) {
 }
 
 let serverState = loadServerState();
+
+function pushMail(username, title, content, type = "system") {
+  const account = (serverState.accounts || []).find((item) => item.username === username);
+  if (!account) return;
+  account.mailbox ||= [];
+  account.mailbox.unshift({ id: uid("mail"), title, content, type, read: false, time: Date.now() });
+  account.mailbox = account.mailbox.slice(0, 80);
+}
+
+function queueWorldBoss(username, party) {
+  const members = Array.isArray(party) ? party.slice(0, 10).map(normalizeMercenary) : [];
+  if (!members.length) throw new Error("请至少选择一名英雄");
+  serverState.worldBossQueue = (serverState.worldBossQueue || []).filter((item) => item.user !== username);
+  serverState.worldBossQueue.push({ user: username, party: members, joinedAt: Date.now() });
+  let resolved = false;
+  if (serverState.worldBossQueue.length >= 100) {
+    const group = serverState.worldBossQueue.splice(0, 100);
+    const totalPower = group.flatMap((item) => item.party).reduce((sum, merc) => sum + totalAttr(merc) * (1 + merc.level * 0.14), 0);
+    const defeated = totalPower >= serverState.worldBoss.maxHp * 0.95;
+    group.forEach((item) => pushMail(item.user, defeated ? "世界 Boss 已击退" : "世界 Boss 结算", defeated ? "百人小队已完成自动挑战，奖励已结算。" : "百人小队已完成挑战，本轮未能击退巨龙。", "world-boss"));
+    serverState.worldBoss.updatedAt = Date.now();
+    resolved = true;
+  }
+  saveServerState(serverState);
+  return { queue: serverState.worldBossQueue, queued: members.length, resolved };
+}
+
+function setSparringDefense(username, merc, power) {
+  const entry = { id: uid("spar"), user: username, merc: normalizeMercenary(merc), power: Math.max(1, Number(power || totalAttr(merc))), updatedAt: Date.now() };
+  serverState.sparring.defenders = (serverState.sparring.defenders || []).filter((item) => item.user !== username).concat(entry).sort((a, b) => b.power - a.power).slice(0, 100);
+  pushMail(username, "擂台守擂已同步", `你的 ${classNames[entry.merc.class]} 已进入擂台守擂。`, "sparring");
+  saveServerState(serverState);
+  return serverState.sparring;
+}
+
+function challengeSparring(username, entryId, attacker, power) {
+  const defender = (serverState.sparring.defenders || []).find((item) => item.id === entryId);
+  if (!defender) throw new Error("找不到擂台目标");
+  const attackerMerc = normalizeMercenary(attacker);
+  const chance = Math.max(0.08, Math.min(0.92, Number(power || 1) * classCounter(attackerMerc.class, defender.merc.class) / (Number(power || 1) * classCounter(attackerMerc.class, defender.merc.class) + defender.power)));
+  const won = Math.random() < chance;
+  const record = { id: uid("sparring"), time: Date.now(), attacker: username, defender: defender.user, won, chance };
+  if (won) {
+    pushMail(defender.user, "擂台守擂失败", "你的守擂英雄已被新的挑战者替换。", "sparring");
+    defender.user = username; defender.merc = attackerMerc; defender.power = Math.max(1, Number(power || totalAttr(attackerMerc))); defender.updatedAt = Date.now();
+    pushMail(username, "擂台攻擂成功", "你已自动接替该擂台位置。", "sparring");
+  } else pushMail(username, "擂台攻擂结算", "本次攻擂未能取胜，稍后可再次挑战。", "sparring");
+  serverState.sparring.history.unshift(record); serverState.sparring.history = serverState.sparring.history.slice(0, 100);
+  saveServerState(serverState);
+  return { record, sparring: serverState.sparring };
+}
 
 function send(res, code, body, type = "text/plain; charset=utf-8", extraHeaders = {}) {
   res.writeHead(code, {
@@ -204,6 +259,7 @@ function classCounter(a, b) {
 }
 
 function resolveArena(attacker, defenderEntry) {
+  const defenderUser = defenderEntry.user;
   const attackerPower = Number(attacker.power || 1) * classCounter(attacker.merc.class, defenderEntry.merc.class);
   const defenderPower = Number(defenderEntry.power || 1);
   const chance = Math.max(0.08, Math.min(0.92, attackerPower / (attackerPower + defenderPower)));
@@ -223,6 +279,8 @@ function resolveArena(attacker, defenderEntry) {
     defenderEntry.merc = normalizeMercenary(attacker.merc);
     defenderEntry.power = Math.max(1, Number(attacker.power || totalAttr(attacker.merc)));
     defenderEntry.time = Date.now();
+    pushMail(defenderUser, "排行榜席位变更", "你的排行榜英雄已被挑战者替换。", "leaderboard");
+    pushMail(String(attacker.user || "本地玩家"), "排行榜挑战胜利", "你的英雄已自动同步并接替排行榜席位。", "leaderboard");
   }
   serverState.leaderboard = serverState.leaderboard
     .sort((a, b) => b.merc.level - a.merc.level || b.power - a.power)
@@ -282,6 +340,7 @@ function createTrade(body) {
   serverState.trades = serverState.trades.filter((item) => !(item.seller === trade.seller && item.merc.id === trade.merc.id && item.status === "listed"));
   serverState.trades.unshift(trade);
   serverState.trades = serverState.trades.slice(0, 200);
+  pushMail(trade.seller, "英雄已上架", `你的 ${classNames[merc.class]} 已上架，等待其他玩家购买。`, "trade");
   saveServerState(serverState);
   return trade;
 }
@@ -293,6 +352,8 @@ function buyTrade(id, buyer) {
   trade.status = "sold";
   trade.buyer = String(buyer || "匿名玩家").slice(0, 20);
   trade.soldAt = Date.now();
+  pushMail(trade.seller, "英雄已售出", `你的 ${classNames[trade.merc.class]} 已被 ${trade.buyer} 购买。`, "trade");
+  pushMail(trade.buyer, "购买成功", `你已购买 ${classNames[trade.merc.class]} LV.${trade.merc.level}。`, "trade");
   saveServerState(serverState);
   return trade;
 }
@@ -397,6 +458,22 @@ async function handleApi(req, res, pathname) {
       return json(res, 200, { ok: true });
     }
 
+    if (req.method === "GET" && pathname === "/api/mail") {
+      const { account } = requireSession(req);
+      account.mailbox ||= [];
+      return json(res, 200, { mail: account.mailbox });
+    }
+
+    if (req.method === "POST" && pathname === "/api/mail/read") {
+      const { account } = requireSession(req);
+      const body = await readBody(req);
+      account.mailbox ||= [];
+      if (body.id === "all") account.mailbox.forEach((mail) => { mail.read = true; });
+      else { const mail = account.mailbox.find((item) => item.id === body.id); if (mail) mail.read = true; }
+      saveServerState(serverState);
+      return json(res, 200, { mail: account.mailbox });
+    }
+
     if (req.method === "GET" && pathname === "/api/leaderboard") {
       return json(res, 200, { leaderboard: serverState.leaderboard, arenaHistory: serverState.arenaHistory.slice(-20) });
     }
@@ -420,6 +497,18 @@ async function handleApi(req, res, pathname) {
       return json(res, 200, { record, arenaHistory: serverState.arenaHistory.slice(-20), leaderboard: serverState.leaderboard });
     }
 
+    if (req.method === "GET" && pathname === "/api/sparring") return json(res, 200, { sparring: serverState.sparring });
+
+    if (req.method === "POST" && pathname === "/api/sparring/defend") {
+      const { account } = requireSession(req); const body = await readBody(req);
+      return json(res, 200, { sparring: setSparringDefense(account.username, body.merc, body.power) });
+    }
+
+    if (req.method === "POST" && pathname === "/api/sparring/challenge") {
+      const { account } = requireSession(req); const body = await readBody(req);
+      return json(res, 200, challengeSparring(account.username, body.entryId, body.attacker, body.power));
+    }
+
     if (req.method === "GET" && pathname === "/api/trades") {
       const query = new URL(req.url, "http://localhost").searchParams;
       return json(res, 200, { trades: listTrades(query) });
@@ -439,7 +528,12 @@ async function handleApi(req, res, pathname) {
     }
 
     if (req.method === "GET" && pathname === "/api/world-boss") {
-      return json(res, 200, { boss: serverState.worldBoss });
+      return json(res, 200, { boss: serverState.worldBoss, queue: serverState.worldBossQueue || [] });
+    }
+
+    if (req.method === "POST" && pathname === "/api/world-boss/queue") {
+      const { account } = requireSession(req); const body = await readBody(req);
+      return json(res, 200, queueWorldBoss(account.username, body.party));
     }
 
     if (req.method === "POST" && pathname === "/api/world-boss/attack") {
