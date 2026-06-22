@@ -1,0 +1,508 @@
+[
+  {
+    "id": "nav_home",
+    "label": "????",
+    "recommendedTextOverlay": true,
+    "states": [
+      "default",
+      "hover",
+      "pressed",
+      "disabled"
+    ]
+  },
+  {
+    "id": "nav_mercenaries",
+    "label": "????",
+    "recommendedTextOverlay": true,
+    "states": [
+      "default",
+      "hover",
+      "pressed",
+      "disabled"
+    ]
+  },
+  {
+    "id": "nav_work",
+    "label": "????",
+    "recommendedTextOverlay": true,
+    "states": [
+      "default",
+      "hover",
+      "pressed",
+      "disabled"
+    ]
+  },
+  {
+    "id": "nav_dungeon",
+    "label": "????",
+    "recommendedTextOverlay": true,
+    "states": [
+      "default",
+      "hover",
+      "pressed",
+      "disabled"
+    ]
+  },
+  {
+    "id": "nav_dragon",
+    "label": "????",
+    "recommendedTextOverlay": true,
+    "states": [
+      "default",
+      "hover",
+      "pressed",
+      "disabled"
+    ]
+  },
+  {
+    "id": "nav_social",
+    "label": "???",
+    "recommendedTextOverlay": true,
+    "states": [
+      "default",
+      "hover",
+      "pressed",
+      "disabled"
+    ]
+  },
+  {
+    "id": "nav_settings",
+    "label": "????",
+    "recommendedTextOverlay": true,
+    "states": [
+      "default",
+      "hover",
+      "pressed",
+      "disabled"
+    ]
+  },
+  {
+    "id": "recruit_hero",
+    "label": "??",
+    "recommendedTextOverlay": true,
+    "states": [
+      "default",
+      "hover",
+      "pressed",
+      "disabled"
+    ]
+  },
+  {
+    "id": "filter_option",
+    "label": "???",
+    "recommendedTextOverlay": true,
+    "states": [
+      "default",
+      "hover",
+      "pressed",
+      "disabled"
+    ]
+  },
+  {
+    "id": "filter_reset",
+    "label": "????",
+    "recommendedTextOverlay": true,
+    "states": [
+      "default",
+      "hover",
+      "pressed",
+      "disabled"
+    ]
+  },
+  {
+    "id": "sort_toggle",
+    "label": "????",
+    "recommendedTextOverlay": true,
+    "states": [
+      "default",
+      "hover",
+      "pressed",
+      "disabled"
+    ]
+  },
+  {
+    "id": "detail_open",
+    "label": "????",
+    "recommendedTextOverlay": true,
+    "states": [
+      "default",
+      "hover",
+      "pressed",
+      "disabled"
+    ]
+  },
+  {
+    "id": "detail_close",
+    "label": "??",
+    "recommendedTextOverlay": true,
+    "states": [
+      "default",
+      "hover",
+      "pressed",
+      "disabled"
+    ]
+  },
+  {
+    "id": "modal_close_x",
+    "label": "????",
+    "recommendedTextOverlay": true,
+    "states": [
+      "default",
+      "hover",
+      "pressed",
+      "disabled"
+    ]
+  },
+  {
+    "id": "upgrade_select_level",
+    "label": "????",
+    "recommendedTextOverlay": true,
+    "states": [
+      "default",
+      "hover",
+      "pressed",
+      "disabled"
+    ]
+  },
+  {
+    "id": "upgrade_confirm",
+    "label": "????",
+    "recommendedTextOverlay": true,
+    "states": [
+      "default",
+      "hover",
+      "pressed",
+      "disabled"
+    ]
+  },
+  {
+    "id": "upgrade_cancel",
+    "label": "????",
+    "recommendedTextOverlay": true,
+    "states": [
+      "default",
+      "hover",
+      "pressed",
+      "disabled"
+    ]
+  },
+  {
+    "id": "clear_confirm",
+    "label": "????",
+    "recommendedTextOverlay": true,
+    "states": [
+      "default",
+      "hover",
+      "pressed",
+      "disabled"
+    ]
+  },
+  {
+    "id": "clear_cancel",
+    "label": "????",
+    "recommendedTextOverlay": true,
+    "states": [
+      "default",
+      "hover",
+      "pressed",
+      "disabled"
+    ]
+  },
+  {
+    "id": "work_start",
+    "label": "????",
+    "recommendedTextOverlay": true,
+    "states": [
+      "default",
+      "hover",
+      "pressed",
+      "disabled"
+    ]
+  },
+  {
+    "id": "work_stop",
+    "label": "????",
+    "recommendedTextOverlay": true,
+    "states": [
+      "default",
+      "hover",
+      "pressed",
+      "disabled"
+    ]
+  },
+  {
+    "id": "work_claim",
+    "label": "????",
+    "recommendedTextOverlay": true,
+    "states": [
+      "default",
+      "hover",
+      "pressed",
+      "disabled"
+    ]
+  },
+  {
+    "id": "work_claim_all",
+    "label": "????",
+    "recommendedTextOverlay": true,
+    "states": [
+      "default",
+      "hover",
+      "pressed",
+      "disabled"
+    ]
+  },
+  {
+    "id": "battle_start",
+    "label": "????",
+    "recommendedTextOverlay": true,
+    "states": [
+      "default",
+      "hover",
+      "pressed",
+      "disabled"
+    ]
+  },
+  {
+    "id": "battle_retry",
+    "label": "????",
+    "recommendedTextOverlay": true,
+    "states": [
+      "default",
+      "hover",
+      "pressed",
+      "disabled"
+    ]
+  },
+  {
+    "id": "battle_select_all",
+    "label": "????",
+    "recommendedTextOverlay": true,
+    "states": [
+      "default",
+      "hover",
+      "pressed",
+      "disabled"
+    ]
+  },
+  {
+    "id": "battle_clear",
+    "label": "????",
+    "recommendedTextOverlay": true,
+    "states": [
+      "default",
+      "hover",
+      "pressed",
+      "disabled"
+    ]
+  },
+  {
+    "id": "dragon_start",
+    "label": "???",
+    "recommendedTextOverlay": true,
+    "states": [
+      "default",
+      "hover",
+      "pressed",
+      "disabled"
+    ]
+  },
+  {
+    "id": "social_tab_leaderboard",
+    "label": "?????",
+    "recommendedTextOverlay": true,
+    "states": [
+      "default",
+      "hover",
+      "pressed",
+      "disabled"
+    ]
+  },
+  {
+    "id": "social_tab_arena",
+    "label": "?????",
+    "recommendedTextOverlay": true,
+    "states": [
+      "default",
+      "hover",
+      "pressed",
+      "disabled"
+    ]
+  },
+  {
+    "id": "social_sync",
+    "label": "??",
+    "recommendedTextOverlay": true,
+    "states": [
+      "default",
+      "hover",
+      "pressed",
+      "disabled"
+    ]
+  },
+  {
+    "id": "leaderboard_refresh",
+    "label": "????",
+    "recommendedTextOverlay": true,
+    "states": [
+      "default",
+      "hover",
+      "pressed",
+      "disabled"
+    ]
+  },
+  {
+    "id": "leaderboard_reset",
+    "label": "????",
+    "recommendedTextOverlay": true,
+    "states": [
+      "default",
+      "hover",
+      "pressed",
+      "disabled"
+    ]
+  },
+  {
+    "id": "hero_upload",
+    "label": "????",
+    "recommendedTextOverlay": true,
+    "states": [
+      "default",
+      "hover",
+      "pressed",
+      "disabled"
+    ]
+  },
+  {
+    "id": "arena_challenge",
+    "label": "????",
+    "recommendedTextOverlay": true,
+    "states": [
+      "default",
+      "hover",
+      "pressed",
+      "disabled"
+    ]
+  },
+  {
+    "id": "arena_recall",
+    "label": "????",
+    "recommendedTextOverlay": true,
+    "states": [
+      "default",
+      "hover",
+      "pressed",
+      "disabled"
+    ]
+  },
+  {
+    "id": "animation_skip",
+    "label": "????",
+    "recommendedTextOverlay": true,
+    "states": [
+      "default",
+      "hover",
+      "pressed",
+      "disabled"
+    ]
+  },
+  {
+    "id": "username_confirm",
+    "label": "?????",
+    "recommendedTextOverlay": true,
+    "states": [
+      "default",
+      "hover",
+      "pressed",
+      "disabled"
+    ]
+  },
+  {
+    "id": "username_cancel",
+    "label": "?????",
+    "recommendedTextOverlay": true,
+    "states": [
+      "default",
+      "hover",
+      "pressed",
+      "disabled"
+    ]
+  },
+  {
+    "id": "settings_save",
+    "label": "????",
+    "recommendedTextOverlay": true,
+    "states": [
+      "default",
+      "hover",
+      "pressed",
+      "disabled"
+    ]
+  },
+  {
+    "id": "settings_reset_game",
+    "label": "????",
+    "recommendedTextOverlay": true,
+    "states": [
+      "default",
+      "hover",
+      "pressed",
+      "disabled"
+    ]
+  },
+  {
+    "id": "settings_delete_save",
+    "label": "????",
+    "recommendedTextOverlay": true,
+    "states": [
+      "default",
+      "hover",
+      "pressed",
+      "disabled"
+    ]
+  },
+  {
+    "id": "settings_grant_small",
+    "label": "??????",
+    "recommendedTextOverlay": true,
+    "states": [
+      "default",
+      "hover",
+      "pressed",
+      "disabled"
+    ]
+  },
+  {
+    "id": "settings_grant_medium",
+    "label": "??????",
+    "recommendedTextOverlay": true,
+    "states": [
+      "default",
+      "hover",
+      "pressed",
+      "disabled"
+    ]
+  },
+  {
+    "id": "settings_grant_large",
+    "label": "??????",
+    "recommendedTextOverlay": true,
+    "states": [
+      "default",
+      "hover",
+      "pressed",
+      "disabled"
+    ]
+  },
+  {
+    "id": "settings_grant_huge",
+    "label": "??????",
+    "recommendedTextOverlay": true,
+    "states": [
+      "default",
+      "hover",
+      "pressed",
+      "disabled"
+    ]
+  }
+]

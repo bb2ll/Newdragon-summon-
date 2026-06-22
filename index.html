@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>地下城佣兵团</title>
+    <link rel="stylesheet" href="./src/styles.css" />
+  </head>
+  <body>
+    <section id="authGate" class="auth-gate"></section>
+    <div id="app" class="app-shell">
+      <header class="topbar">
+        <div class="brand">
+          <span class="brand-mark">D</span>
+          <div>
+            <h1>地下城佣兵团</h1>
+          </div>
+        </div>
+        <div class="topbar-actions">
+          <div class="resource-bar">
+            <div class="resource-pill"><img src="./assets/icons/icon_badge_currency.png" alt="" /><span>主币</span><strong id="primaryAmount">0</strong></div>
+            <div class="resource-pill"><img src="./assets/icons/icon_gold_coin.png" alt="" /><span>碎金</span><strong id="goldAmount">0</strong></div>
+            <div class="resource-pill"><span>在线</span><strong id="onlineCount">12</strong></div>
+            <div class="resource-pill"><span>存档</span><strong id="saveState">已保存</strong></div>
+            <div class="resource-pill"><span>账号</span><strong id="accountName">未登录</strong></div>
+          </div>
+          <button class="game-button" id="logoutButton" data-action="sign-out" hidden>退出登录</button>
+        </div>
+      </header>
+
+      <nav class="main-nav" id="mainNav"></nav>
+
+      <main class="game-frame">
+        <section class="view active" id="view-home"></section>
+        <section class="view" id="view-mercenaries"></section>
+        <section class="view" id="view-work"></section>
+        <section class="view" id="view-dungeon"></section>
+        <section class="view" id="view-dragon"></section>
+        <section class="view" id="view-social"></section>
+        <section class="view" id="view-trade"></section>
+        <section class="view" id="view-settings"></section>
+      </main>
+
+      <aside class="toast-region" id="toastRegion" aria-live="polite"></aside>
+      <div class="modal-layer" id="modalLayer"></div>
+    </div>
+    <script src="./src/game-data.js"></script>
+    <script src="./src/app.js"></script>
+  </body>
+</html>

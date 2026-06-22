@@ -1,0 +1,359 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>地下城佣兵团</title>
+    <link rel="stylesheet" href="./src/styles.css">
+  </head>
+  <body>
+    <div id="app" class="app-shell">
+      <header class="topbar">
+        <div class="brand">
+          <span class="brand-mark">D</span>
+          <div>
+            <h1>地下城佣兵团</h1>
+            <p>100 人以内联机向佣兵养成与自动战斗面板</p>
+          </div>
+        </div>
+        <div class="resource-bar">
+          <div class="resource-pill"><img src="./assets/icons/icon_badge_currency.png" alt=""><span>主币</span><strong id="primaryAmount">2,000</strong></div>
+          <div class="resource-pill"><img src="./assets/icons/icon_gold_coin.png" alt=""><span>碎金</span><strong id="goldAmount">984,483.02</strong></div>
+          <div class="resource-pill"><span>在线</span><strong id="onlineCount">已联机</strong></div>
+          <div class="resource-pill"><span>存档</span><strong id="saveState">已保存</strong></div>
+        </div>
+      </header>
+
+      <nav class="main-nav" id="mainNav"><button class="nav-button active" data-nav="home">控制中心</button><button class="nav-button " data-nav="mercenaries">佣兵管理</button><button class="nav-button " data-nav="work">工作派遣</button><button class="nav-button " data-nav="dungeon">数据迷宫</button><button class="nav-button " data-nav="dragon">龙巢</button><button class="nav-button " data-nav="social">互动区</button><button class="nav-button " data-nav="settings">设置</button></nav>
+
+      <main class="game-frame">
+        <section class="view active" id="view-home">
+    <div class="page-title">
+      <div><h2>控制中心</h2><p>这里是佣兵团总览。所有操作都围绕招募、工作、升级、地下城和龙巢展开。</p></div>
+      <div class="button-row"><button class="game-button success" data-action="recruit">招募佣兵</button><button class="game-button " data-action="go-dungeon">进入迷宫</button></div>
+    </div>
+    <div class="metric-row">
+      <div class="metric"><span>佣兵总数</span><strong>4</strong></div>
+      <div class="metric"><span>空闲</span><strong>3</strong></div>
+      <div class="metric"><span>工作中</span><strong>1</strong></div>
+      <div class="metric"><span>最高战力</span><strong>801</strong></div>
+    </div>
+    <div class="grid two" style="margin-top:14px">
+      <div class="panel">
+        <h3 class="panel-title"><img src="./assets/icons/icon_treasure_chest.png" alt="">今日行动</h3>
+        <div class="list">
+          <div class="row"><span>每日招募</span><strong>1/30</strong></div>
+          <div class="row"><span>简单迷宫</span><strong>已解锁 2/5 层</strong></div>
+          <div class="row"><span>中等迷宫</span><strong>已解锁 0/5 层</strong></div>
+          <div class="row"><span>困难迷宫</span><strong>已解锁 0/5 层</strong></div>
+        </div>
+      </div>
+      <div class="panel">
+        <h3 class="panel-title"><img src="./assets/icons/icon_victory_banner.png" alt="">推荐步骤</h3>
+        <div class="list">
+          <div class="row"><span>1. 招募并筛出高主属性佣兵</span><small>战士/盗贼/法师</small></div>
+          <div class="row"><span>2. 派遣工作积累碎金</span><small>30 秒为 1 周期</small></div>
+          <div class="row"><span>3. 用碎金升级，承担爆卡风险</span><small>LV.5 后风险明显</small></div>
+          <div class="row"><span>4. 通关迷宫并挑战深渊古龙</span><small>LV.10 解锁</small></div>
+        </div>
+      </div>
+    </div></section>
+        <section class="view" id="view-mercenaries">
+    <div class="page-title">
+      <div><h2>佣兵管理</h2><p>招募、筛选、查看详情、升级和派遣都从这里开始。召唤结果按职业展示。</p></div>
+      <div><button class="game-button success" data-action="recruit">招募 (1B) 1/30</button></div>
+    </div>
+    <div class="toolbar panel">
+      <div class="button-row">
+        <select class="select" data-filter="class">
+          <option value="all" selected="">全部职业</option><option value="warrior">战士</option><option value="rogue">盗贼</option><option value="mage">法师</option>
+        </select>
+        <select class="select" data-filter="status">
+          <option value="all" selected="">全部状态</option><option value="idle">空闲</option><option value="working">工作中</option><option value="battling">战斗中</option>
+        </select>
+        <select class="select" data-filter="sort">
+          <option value="power" selected="">战斗力</option><option value="level">等级</option><option value="total">总属性</option><option value="hourly">时薪</option>
+        </select>
+      </div>
+      <button class="game-button " data-action="reset-filters">重置筛选</button>
+    </div>
+    <div class="merc-grid"><article class="merc-card ">
+    <img class="hero-portrait" src="./assets/heroes/hero_mage_idle.png" alt="法师">
+    <div>
+      <h3>法师</h3>
+      <div class="tag-row">
+        <span class="tag purple">LV.1</span>
+        <span class="tag">空闲</span>
+        <span class="tag">战力 801</span>
+      </div>
+      <div class="stat-list">
+        <div class="stat-line"><span>力量</span><strong>32</strong></div><div class="stat-line"><span>敏捷</span><strong>40</strong></div><div class="stat-line"><span>智力</span><strong>55</strong></div><div class="stat-line"><span>体质</span><strong>31</strong></div><div class="stat-line"><span>意志</span><strong>53</strong></div><div class="stat-line"><span>精神</span><strong>47</strong></div>
+      </div>
+      <div class="button-row">
+        <button class="game-button " data-action="detail:merc_mqj3516g_8efqsx">详情</button>
+        <button class="game-button success" data-action="upgrade:merc_mqj3516g_8efqsx">升级</button>
+        <button class="game-button success" data-action="start-work:merc_mqj3516g_8efqsx">派遣</button>
+      </div>
+    </div>
+  </article><article class="merc-card ">
+    <img class="hero-portrait" src="./assets/heroes/hero_rogue_idle.png" alt="盗贼">
+    <div>
+      <h3>盗贼</h3>
+      <div class="tag-row">
+        <span class="tag purple">LV.2</span>
+        <span class="tag">空闲</span>
+        <span class="tag">战力 744</span>
+      </div>
+      <div class="stat-list">
+        <div class="stat-line"><span>力量</span><strong>46</strong></div><div class="stat-line"><span>敏捷</span><strong>54</strong></div><div class="stat-line"><span>智力</span><strong>28</strong></div><div class="stat-line"><span>体质</span><strong>28</strong></div><div class="stat-line"><span>意志</span><strong>36</strong></div><div class="stat-line"><span>精神</span><strong>35</strong></div>
+      </div>
+      <div class="button-row">
+        <button class="game-button " data-action="detail:merc_mqj3516g_7ya1ek">详情</button>
+        <button class="game-button success" data-action="upgrade:merc_mqj3516g_7ya1ek">升级</button>
+        <button class="game-button success" data-action="start-work:merc_mqj3516g_7ya1ek">派遣</button>
+      </div>
+    </div>
+  </article><article class="merc-card ">
+    <img class="hero-portrait" src="./assets/heroes/hero_warrior_idle.png" alt="战士">
+    <div>
+      <h3>战士</h3>
+      <div class="tag-row">
+        <span class="tag blue">LV.1</span>
+        <span class="tag">工作中</span>
+        <span class="tag">战力 708</span>
+      </div>
+      <div class="stat-list">
+        <div class="stat-line"><span>力量</span><strong>52</strong></div><div class="stat-line"><span>敏捷</span><strong>34</strong></div><div class="stat-line"><span>智力</span><strong>25</strong></div><div class="stat-line"><span>体质</span><strong>47</strong></div><div class="stat-line"><span>意志</span><strong>41</strong></div><div class="stat-line"><span>精神</span><strong>20</strong></div>
+      </div>
+      <div class="button-row">
+        <button class="game-button " data-action="detail:merc_mqj3516g_g8vrx0">详情</button>
+        <button class="game-button success" data-action="upgrade:merc_mqj3516g_g8vrx0" disabled="">升级</button>
+        <button class="game-button success" data-action="start-work:merc_mqj3516g_g8vrx0" disabled="">派遣</button>
+      </div>
+    </div>
+  </article><article class="merc-card ">
+    <img class="hero-portrait" src="./assets/heroes/hero_warrior_idle.png" alt="战士">
+    <div>
+      <h3>战士</h3>
+      <div class="tag-row">
+        <span class="tag blue">LV.1</span>
+        <span class="tag">空闲</span>
+        <span class="tag">战力 570</span>
+      </div>
+      <div class="stat-list">
+        <div class="stat-line"><span>力量</span><strong>40</strong></div><div class="stat-line"><span>敏捷</span><strong>26</strong></div><div class="stat-line"><span>智力</span><strong>21</strong></div><div class="stat-line"><span>体质</span><strong>33</strong></div><div class="stat-line"><span>意志</span><strong>36</strong></div><div class="stat-line"><span>精神</span><strong>24</strong></div>
+      </div>
+      <div class="button-row">
+        <button class="game-button " data-action="detail:merc_mqj3516p_7jsyi2">详情</button>
+        <button class="game-button success" data-action="upgrade:merc_mqj3516p_7jsyi2">升级</button>
+        <button class="game-button success" data-action="start-work:merc_mqj3516p_7jsyi2">派遣</button>
+      </div>
+    </div>
+  </article></div></section>
+        <section class="view" id="view-work">
+    <div class="page-title">
+      <div><h2>工作派遣</h2><p>每 30 秒计算一个周期。职业高级工作需要主属性 85 和副属性 65。</p></div>
+      <button class="game-button success" data-action="claim-all" disabled="">一键领取 0G</button>
+    </div>
+    <div class="grid two">
+      <div class="panel">
+        <h3 class="panel-title"><img src="./assets/icons/icon_gold_coin.png" alt="">工作中</h3>
+        <div class="list"><div class="row">
+    <div><strong>战士 LV.1</strong><br><small>打零工 · 待领 0 G</small></div>
+    <div class="button-row"><button class="game-button success" data-action="claim:merc_mqj3516g_g8vrx0">领取</button><button class="game-button danger" data-action="stop-work:merc_mqj3516g_g8vrx0">停止</button></div>
+  </div></div>
+      </div>
+      <div class="panel">
+        <h3 class="panel-title"><img src="./assets/icons/icon_treasure_chest.png" alt="">空闲佣兵</h3>
+        <div class="list"><div class="row">
+    <div><strong>盗贼 LV.2</strong><br><small>推荐：打零工 · 时薪 2.4 G</small></div>
+    <button class="game-button success" data-action="start-work:merc_mqj3516g_7ya1ek">开始工作</button>
+  </div><div class="row">
+    <div><strong>法师 LV.1</strong><br><small>推荐：打零工 · 时薪 1.2 G</small></div>
+    <button class="game-button success" data-action="start-work:merc_mqj3516g_8efqsx">开始工作</button>
+  </div><div class="row">
+    <div><strong>战士 LV.1</strong><br><small>推荐：打零工 · 时薪 1.2 G</small></div>
+    <button class="game-button success" data-action="start-work:merc_mqj3516p_7jsyi2">开始工作</button>
+  </div></div>
+      </div>
+    </div></section>
+        <section class="view" id="view-dungeon">
+    <div class="page-title">
+      <div><h2>数据迷宫</h2><p>普通迷宫最多 5 层，通关会解锁更高楼层和难度。失败不会返还入场费。</p></div>
+      <button class="game-button success" data-action="start-battle">挑战 1,000G</button>
+    </div>
+    <div class="grid two">
+      <div class="panel">
+        <h3 class="panel-title"><img src="./assets/icons/icon_floor_stairs.png" alt="">难度与楼层</h3>
+        <div class="button-row">
+          <button class="game-button success" data-difficulty="easy">简单</button><button class="game-button " data-difficulty="medium" disabled="">中等</button><button class="game-button " data-difficulty="hard" disabled="">困难</button>
+        </div>
+        <div class="button-row" style="margin-top:10px">
+          <button class="game-button success" data-floor="1">1 层</button><button class="game-button " data-floor="2">2 层</button><button class="game-button " data-floor="3" disabled="">3 层</button><button class="game-button " data-floor="4" disabled="">4 层</button><button class="game-button " data-floor="5" disabled="">5 层</button>
+        </div>
+        <div style="margin-top:14px"><div class="merc-grid"><article class="merc-card selected" data-select-merc="merc_mqj3516g_7ya1ek">
+    <img class="hero-portrait" src="./assets/heroes/hero_rogue_idle.png" alt="盗贼">
+    <div>
+      <h3>盗贼</h3>
+      <div class="tag-row">
+        <span class="tag purple">LV.2</span>
+        <span class="tag">空闲</span>
+        <span class="tag">战力 744</span>
+      </div>
+      <div class="stat-list">
+        <div class="stat-line"><span>力量</span><strong>46</strong></div><div class="stat-line"><span>敏捷</span><strong>54</strong></div><div class="stat-line"><span>智力</span><strong>28</strong></div><div class="stat-line"><span>体质</span><strong>28</strong></div><div class="stat-line"><span>意志</span><strong>36</strong></div><div class="stat-line"><span>精神</span><strong>35</strong></div>
+      </div>
+      <div class="button-row">
+        <button class="game-button " data-action="detail:merc_mqj3516g_7ya1ek">详情</button>
+        <button class="game-button success" data-action="upgrade:merc_mqj3516g_7ya1ek">升级</button>
+        <button class="game-button success" data-action="start-work:merc_mqj3516g_7ya1ek">派遣</button>
+      </div>
+    </div>
+  </article><article class="merc-card " data-select-merc="merc_mqj3516g_8efqsx">
+    <img class="hero-portrait" src="./assets/heroes/hero_mage_idle.png" alt="法师">
+    <div>
+      <h3>法师</h3>
+      <div class="tag-row">
+        <span class="tag purple">LV.1</span>
+        <span class="tag">空闲</span>
+        <span class="tag">战力 801</span>
+      </div>
+      <div class="stat-list">
+        <div class="stat-line"><span>力量</span><strong>32</strong></div><div class="stat-line"><span>敏捷</span><strong>40</strong></div><div class="stat-line"><span>智力</span><strong>55</strong></div><div class="stat-line"><span>体质</span><strong>31</strong></div><div class="stat-line"><span>意志</span><strong>53</strong></div><div class="stat-line"><span>精神</span><strong>47</strong></div>
+      </div>
+      <div class="button-row">
+        <button class="game-button " data-action="detail:merc_mqj3516g_8efqsx">详情</button>
+        <button class="game-button success" data-action="upgrade:merc_mqj3516g_8efqsx">升级</button>
+        <button class="game-button success" data-action="start-work:merc_mqj3516g_8efqsx">派遣</button>
+      </div>
+    </div>
+  </article><article class="merc-card " data-select-merc="merc_mqj3516p_7jsyi2">
+    <img class="hero-portrait" src="./assets/heroes/hero_warrior_idle.png" alt="战士">
+    <div>
+      <h3>战士</h3>
+      <div class="tag-row">
+        <span class="tag blue">LV.1</span>
+        <span class="tag">空闲</span>
+        <span class="tag">战力 570</span>
+      </div>
+      <div class="stat-list">
+        <div class="stat-line"><span>力量</span><strong>40</strong></div><div class="stat-line"><span>敏捷</span><strong>26</strong></div><div class="stat-line"><span>智力</span><strong>21</strong></div><div class="stat-line"><span>体质</span><strong>33</strong></div><div class="stat-line"><span>意志</span><strong>36</strong></div><div class="stat-line"><span>精神</span><strong>24</strong></div>
+      </div>
+      <div class="button-row">
+        <button class="game-button " data-action="detail:merc_mqj3516p_7jsyi2">详情</button>
+        <button class="game-button success" data-action="upgrade:merc_mqj3516p_7jsyi2">升级</button>
+        <button class="game-button success" data-action="start-work:merc_mqj3516p_7jsyi2">派遣</button>
+      </div>
+    </div>
+  </article></div></div>
+      </div>
+      <div class="panel">
+        <h3 class="panel-title"><img src="./assets/icons/icon_attack_sword.png" alt="">战斗日志</h3>
+        <div class="battle-log"><p>盗贼进入简单1层，遭遇腐化骑士 LV.2。</p><p>成功率估算 95%。</p><p>胜利，获得 483 G 与 1 B。</p></div>
+      </div>
+    </div></section>
+        <section class="view" id="view-dragon">
+    <div class="page-title">
+      <div><h2>龙巢</h2><p>至少拥有 1 名 LV.10 佣兵才可挑战。最多 50 人参战，古龙会随人数增强。</p></div>
+      <div class="button-row"><button class="game-button " data-action="dragon-select-all" disabled="">全选</button><button class="game-button danger" data-action="dragon-start" disabled="">挑战古龙 0人</button></div>
+    </div>
+    <div class="grid two">
+      <div class="panel">
+        <h3 class="panel-title"><img src="./assets/icons/icon_defeat_broken_shield.png" alt="">深渊古龙</h3>
+        <div class="metric-row">
+          <div class="metric"><span>生命</span><strong>113,505 / 117,000</strong></div>
+          <div class="metric"><span>攻击</span><strong>3,900</strong></div>
+          <div class="metric"><span>入场费</span><strong>100,000G</strong></div>
+          <div class="metric"><span>参战</span><strong>0</strong></div>
+        </div>
+        <div class="merc-grid" style="margin-top:14px"><div class="empty">需要 LV.10 佣兵解锁龙巢。</div></div>
+      </div>
+      <div class="panel">
+        <h3 class="panel-title"><img src="./assets/icons/icon_victory_banner.png" alt="">龙战日志</h3>
+        <div class="battle-log"><p>龙巢尚未开战。</p></div>
+      </div>
+    </div></section>
+        <section class="view" id="view-social">
+    <div class="page-title">
+      <div><h2>互动区</h2><p>上传英雄进入荣誉大厅，也可以挑战其他玩家或模拟守擂英雄。</p></div>
+      <div class="button-row"><button class="game-button success" data-action="refresh-board">刷新排行</button><button class="game-button danger" data-action="reset-board">重置排行</button></div>
+    </div>
+    <div class="grid two">
+      <div class="panel">
+        <h3 class="panel-title"><img src="./assets/icons/icon_victory_banner.png" alt="">英雄排行榜</h3>
+        <div class="list"><div class="row">
+    <div><strong>实体测试玩家 · 战士 LV.12</strong><br><small>战力 1,288 · 总属性 342</small></div>
+    <button class="game-button danger" data-action="arena:board_mqj2rznw_e1mnsp">发起挑战</button>
+  </div><div class="row">
+    <div><strong>联机自检玩家 · 战士 LV.12</strong><br><small>战力 1,288 · 总属性 342</small></div>
+    <button class="game-button danger" data-action="arena:board_mqj2wz1t_titebo">发起挑战</button>
+  </div><div class="row">
+    <div><strong>联机自检玩家 · 战士 LV.12</strong><br><small>战力 1,288 · 总属性 342</small></div>
+    <button class="game-button danger" data-action="arena:board_mqj32bor_hbel0h">发起挑战</button>
+  </div><div class="row">
+    <div><strong>城堡游客 5 · 法师 LV.6</strong><br><small>战力 707 · 总属性 201</small></div>
+    <button class="game-button danger" data-action="arena:npc_mqj2q8ii_2jkf7j">发起挑战</button>
+  </div><div class="row">
+    <div><strong>城堡游客 4 · 战士 LV.5</strong><br><small>战力 652 · 总属性 196</small></div>
+    <button class="game-button danger" data-action="arena:npc_mqj2q8ii_4w0gvi">发起挑战</button>
+  </div><div class="row">
+    <div><strong>城堡游客 3 · 法师 LV.4</strong><br><small>战力 934 · 总属性 277</small></div>
+    <button class="game-button danger" data-action="arena:npc_mqj2q8ii_4u46i4">发起挑战</button>
+  </div><div class="row">
+    <div><strong>城堡游客 2 · 盗贼 LV.3</strong><br><small>战力 812 · 总属性 236</small></div>
+    <button class="game-button danger" data-action="arena:npc_mqj2q8ii_dt8rgl">发起挑战</button>
+  </div><div class="row">
+    <div><strong>本地玩家 · 盗贼 LV.2</strong><br><small>战力 905 · 总属性 265</small></div>
+    <button class="game-button danger" data-action="arena:board_mqj3399z_eaovjb">发起挑战</button>
+  </div><div class="row">
+    <div><strong>本地玩家 · 盗贼 LV.2</strong><br><small>战力 744 · 总属性 227</small></div>
+    <button class="game-button danger" data-action="arena:board_mqj3516z_c9gq4r">发起挑战</button>
+  </div><div class="row">
+    <div><strong>城堡游客 1 · 战士 LV.2</strong><br><small>战力 593 · 总属性 194</small></div>
+    <button class="game-button danger" data-action="arena:npc_mqj2q8ii_th1ynk">发起挑战</button>
+  </div></div>
+      </div>
+      <div class="panel">
+        <h3 class="panel-title"><img src="./assets/icons/icon_badge_currency.png" alt="">上传英雄</h3>
+        <div class="list"><div class="row">
+    <div><strong>盗贼 LV.2</strong><br><small>战力 744</small></div>
+    <button class="game-button success" data-action="upload:merc_mqj3516g_7ya1ek" disabled="">已上传</button>
+  </div><div class="row">
+    <div><strong>法师 LV.1</strong><br><small>战力 801</small></div>
+    <button class="game-button success" data-action="upload:merc_mqj3516g_8efqsx">上传英雄</button>
+  </div><div class="row">
+    <div><strong>战士 LV.1</strong><br><small>战力 570</small></div>
+    <button class="game-button success" data-action="upload:merc_mqj3516p_7jsyi2">上传英雄</button>
+  </div></div>
+        <h3 class="panel-title" style="margin-top:18px">挑战记录</h3>
+        <div class="list"><div class="row"><span>战士 LV.12 挑战 联机自检玩家 · 战士 LV.12：胜利</span></div><div class="row"><span>战士 LV.12 挑战 联机自检玩家 · 战士 LV.12：胜利</span></div><div class="row"><span>战士 LV.12 挑战 实体测试玩家 · 战士 LV.12：失败</span></div><div class="row"><span>战士 LV.12 挑战 实体测试玩家 · 战士 LV.12：胜利</span></div></div>
+      </div>
+    </div></section>
+        <section class="view" id="view-settings">
+    <div class="page-title"><div><h2>游戏设置</h2><p>保存设置、存档管理和测试资源发放集中在这里。</p></div></div>
+    <div class="grid two">
+      <div class="panel">
+        <h3 class="panel-title"><img src="./assets/icons/icon_magic_resist_rune.png" alt="">偏好设置</h3>
+        <label class="row"><span>音效</span><input type="checkbox" data-setting="sound" checked=""></label><label class="row"><span>音乐</span><input type="checkbox" data-setting="music"></label><label class="row"><span>通知</span><input type="checkbox" data-setting="notifications" checked=""></label><label class="row"><span>自动保存</span><input type="checkbox" data-setting="autosave" checked=""></label>
+      </div>
+      <div class="panel">
+        <h3 class="panel-title"><img src="./assets/icons/icon_defeat_broken_shield.png" alt="">存档与调试</h3>
+        <div class="button-row">
+          <button class="game-button " data-action="grant-small">少量资源</button>
+          <button class="game-button " data-action="grant-medium">中等资源</button>
+          <button class="game-button " data-action="grant-large">大量资源</button>
+          <button class="game-button danger" data-action="grant-huge">巨量资源</button>
+          <button class="game-button danger" data-action="reset-game">重置游戏</button>
+          <button class="game-button danger" data-action="delete-save">删除存档</button>
+        </div>
+      </div>
+    </div></section>
+      </main>
+
+      <aside class="toast-region" id="toastRegion" aria-live="polite"></aside>
+      <div class="modal-layer" id="modalLayer"></div>
+    </div>
+    <script src="./src/game-data.js"></script>
+    <script src="./src/app.js"></script>
+  
+
+<section id="qaSmokePanel" class="panel" style="margin: 16px auto; width: min(1480px, -32px + 100vw);"><h2>QA Smoke Test</h2><div class="row"><span>招募会新增佣兵并消耗 1 主币</span><strong>PASS</strong><small></small></div><div class="row"><span>开始工作会绑定工作状态和工作类型</span><strong>PASS</strong><small></small></div><div class="row"><span>领取工作收益会增加碎金</span><strong>PASS</strong><small></small></div><div class="row"><span>升级流程会消耗资源并执行等级变化或失败结果</span><strong>PASS</strong><small></small></div><div class="row"><span>迷宫挑战会消耗入场费并写入战斗日志</span><strong>PASS</strong><small></small></div><div class="row"><span>排行榜上传会写入或更新英雄</span><strong>PASS</strong><small></small></div></section></body></html>

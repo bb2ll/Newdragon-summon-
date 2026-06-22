@@ -1,0 +1,25 @@
+services:
+  cyber-dragon:
+    build:
+      context: .
+    image: cyber-dragon-server:latest
+    container_name: cyber-dragon-server
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      PORT: 4177
+      DATA_DIR: /app/data
+    ports:
+      - "4177:4177"
+    volumes:
+      - cyber-dragon-data:/app/data
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:' + (process.env.PORT || 4177) + '/api/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  cyber-dragon-data:

@@ -1,0 +1,13 @@
+Thumbs.db
+.DS_Store
+docs/chrome-*-qa/
+docs/.chrome-*-qa/
+node_modules/
+data/
+%TEMP%/
+.chrome-cdp-qa/
+.chrome-cdp-qa*/
+.edge-home-qa/
+home-qa.png
+tmp-docker-test.err
+tmp-docker-test.log
